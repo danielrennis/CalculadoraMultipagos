@@ -11,24 +11,22 @@
     @import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;600;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
 
     [v-cloak] { display: none; }
-    
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 
-    body { 
+    body {
         background: radial-gradient(circle at top left, #fee2e2 0%, #f7f9fb 40%, #ffffff 100%);
         min-height: 100vh;
         font-family: 'Inter', sans-serif;
     }
 
-    h1, h2, h3, .font-headline {
-        font-family: 'Hanken Grotesk', sans-serif;
-    }
+    h1, h2, h3, .font-headline { font-family: 'Hanken Grotesk', sans-serif; }
 
-    /* Glassmorphism Styles */
+    /* Glassmorphism */
     .glass-panel {
         background: rgba(255, 255, 255, 0.55);
         backdrop-filter: blur(20px);
@@ -74,16 +72,20 @@
         box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1) !important;
     }
 
-    /* Branding Colors */
+    /* Branding */
     .text-ryr { color: #dc2626; }
     .bg-ryr { background-color: #dc2626; }
     .border-ryr { border-color: #dc2626; }
     .border-l-ryr { border-left-color: #dc2626; }
 
-    .opt-efectivo { 
-        color: #dc2626 !important; 
-        font-weight: 800 !important;
-        background-color: #fff1f2;
+    /* Dropdown custom */
+    .plan-dropdown {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
     }
 
     /* Animations */
@@ -99,6 +101,12 @@
         to   { opacity: 1; transform: scale(1); }
     }
 
+    .dropdown-enter { animation: dropIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes dropIn {
+        from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
     .gear-spin:hover { animation: gearRotate 0.8s ease-in-out; }
     @keyframes gearRotate {
         from { transform: rotate(0deg); }
@@ -111,7 +119,6 @@
         100% { width: 0%;   margin-left: 100%; }
     }
 
-    /* Scrollbar styling */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); }
     ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
@@ -156,7 +163,7 @@
          class="fixed inset-0 z-[60] flex items-center justify-center p-4"
          style="background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);">
 
-        <!-- PANTALLA DE CONTRASEÑA -->
+        <!-- CONTRASEÑA -->
         <div v-if="!configAuthenticated" class="glass-panel rounded-3xl shadow-2xl p-10 w-full max-w-md modal-enter">
             <div class="text-center mb-8">
                 <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 glass-button-secondary text-ryr">
@@ -166,10 +173,7 @@
                 <p class="text-sm text-slate-500 mt-2">Ingrese sus credenciales de administrador</p>
             </div>
             <div class="space-y-4">
-                <input id="config-pass-input"
-                       type="password"
-                       v-model="configPasswordInput"
-                       @keyup.enter="submitPassword"
+                <input id="config-pass-input" type="password" v-model="configPasswordInput" @keyup.enter="submitPassword"
                        :class="configPasswordError ? 'border-red-500 bg-red-50/50 text-red-600' : ''"
                        class="w-full px-6 py-4 glass-input rounded-2xl outline-none text-center text-2xl font-bold tracking-[0.5em] transition border-none"
                        placeholder="••••">
@@ -177,22 +181,14 @@
                     Acceso denegado. Intente nuevamente.
                 </p>
                 <div class="flex gap-4 mt-8">
-                    <button @click="closeConfig"
-                            class="flex-1 py-4 rounded-2xl glass-button-secondary text-slate-600 font-bold text-sm uppercase tracking-wider cursor-pointer">
-                        Cerrar
-                    </button>
-                    <button @click="submitPassword"
-                            class="flex-1 py-4 rounded-2xl glass-button-primary text-white font-bold text-sm uppercase tracking-wider cursor-pointer">
-                        Ingresar
-                    </button>
+                    <button @click="closeConfig" class="flex-1 py-4 rounded-2xl glass-button-secondary text-slate-600 font-bold text-sm uppercase tracking-wider cursor-pointer">Cerrar</button>
+                    <button @click="submitPassword" class="flex-1 py-4 rounded-2xl glass-button-primary text-white font-bold text-sm uppercase tracking-wider cursor-pointer">Ingresar</button>
                 </div>
             </div>
         </div>
 
         <!-- PANEL DE PLANES -->
         <div v-else class="glass-panel rounded-3xl shadow-2xl w-full max-w-3xl modal-enter flex flex-col overflow-hidden" style="max-height: 85vh;">
-
-            <!-- Header del panel -->
             <div class="flex justify-between items-start p-8 border-b border-white/20 shrink-0 bg-white/20">
                 <div>
                     <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3 font-headline">
@@ -203,16 +199,13 @@
                     </h2>
                     <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest font-medium">Ajuste de márgenes operativos por terminal</p>
                 </div>
-                <button @click="closeConfig"
-                        class="w-10 h-10 rounded-xl glass-button-secondary flex items-center justify-center hover:text-red-600 transition shrink-0 cursor-pointer">
+                <button @click="closeConfig" class="w-10 h-10 rounded-xl glass-button-secondary flex items-center justify-center hover:text-red-600 transition shrink-0 cursor-pointer">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- Cuerpo scrolleable -->
             <div class="overflow-y-auto flex-1 p-6 space-y-8 bg-white/10">
 
-                <!-- Cabecera de columnas -->
                 <div class="grid grid-cols-12 gap-4 px-3">
                     <span class="col-span-5 text-[10px] font-black uppercase tracking-wider text-slate-400">Plan</span>
                     <span class="col-span-3 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">% Costo</span>
@@ -229,15 +222,12 @@
                              class="grid grid-cols-12 gap-4 items-center p-3 rounded-xl hover:bg-white/40 transition">
                             <span class="col-span-5 text-sm font-bold text-slate-700">{{ plan.name }}</span>
                             <div class="col-span-3 relative">
-                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
-                                       step="0.01" min="0" max="99"
+                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)" step="0.01" min="0" max="99"
                                        class="w-full text-center pr-6 pl-2 py-2 glass-input rounded-xl text-sm font-black text-slate-800 border-none outline-none">
                                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">%</span>
                             </div>
                             <div class="col-span-4 text-right">
-                                <span class="font-mono text-sm font-bold bg-purple-50 text-purple-700 px-3 py-1 rounded-lg">
-                                    {{ plan.coefficient.toFixed(4) }}
-                                </span>
+                                <span class="font-mono text-sm font-bold bg-purple-50 text-purple-700 px-3 py-1 rounded-lg">{{ plan.coefficient.toFixed(4) }}</span>
                             </div>
                         </div>
                     </div>
@@ -253,15 +243,12 @@
                              class="grid grid-cols-12 gap-4 items-center p-3 rounded-xl hover:bg-white/40 transition">
                             <span class="col-span-5 text-sm font-bold text-slate-700">{{ plan.name }}</span>
                             <div class="col-span-3 relative">
-                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
-                                       step="0.01" min="0" max="99"
+                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)" step="0.01" min="0" max="99"
                                        class="w-full text-center pr-6 pl-2 py-2 glass-input rounded-xl text-sm font-black text-slate-800 border-none outline-none">
                                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">%</span>
                             </div>
                             <div class="col-span-4 text-right">
-                                <span class="font-mono text-sm font-bold bg-amber-50 text-amber-700 px-3 py-1 rounded-lg">
-                                    {{ plan.coefficient.toFixed(4) }}
-                                </span>
+                                <span class="font-mono text-sm font-bold bg-amber-50 text-amber-700 px-3 py-1 rounded-lg">{{ plan.coefficient.toFixed(4) }}</span>
                             </div>
                         </div>
                     </div>
@@ -277,28 +264,20 @@
                              class="grid grid-cols-12 gap-4 items-center p-3 rounded-xl hover:bg-white/40 transition">
                             <span class="col-span-5 text-sm font-bold text-slate-700">{{ plan.name }}</span>
                             <div class="col-span-3 relative">
-                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
-                                       step="0.01" min="0" max="99"
+                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)" step="0.01" min="0" max="99"
                                        class="w-full text-center pr-6 pl-2 py-2 glass-input rounded-xl text-sm font-black text-slate-800 border-none outline-none">
                                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">%</span>
                             </div>
                             <div class="col-span-4 text-right">
-                                <span class="font-mono text-sm font-bold bg-orange-50 text-orange-700 px-3 py-1 rounded-lg">
-                                    {{ plan.coefficient.toFixed(4) }}
-                                </span>
+                                <span class="font-mono text-sm font-bold bg-orange-50 text-orange-700 px-3 py-1 rounded-lg">{{ plan.coefficient.toFixed(4) }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Footer del panel -->
             <div class="p-6 border-t border-white/20 bg-white/20 flex gap-4 shrink-0">
-                <button @click="closeConfig"
-                        class="flex-1 py-4 rounded-2xl glass-button-secondary text-slate-600 font-bold text-xs uppercase tracking-widest cursor-pointer">
-                    Cancelar
-                </button>
+                <button @click="closeConfig" class="flex-1 py-4 rounded-2xl glass-button-secondary text-slate-600 font-bold text-xs uppercase tracking-widest cursor-pointer">Cancelar</button>
                 <button @click="saveConfig" id="save-config-btn"
                         class="flex-1 py-4 rounded-2xl glass-button-primary text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-cloud-arrow-up" v-if="!configSaved"></i>
@@ -312,10 +291,10 @@
     <!-- ===== GRID PRINCIPAL ===== -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        <!-- COLUMNA IZQUIERDA (8) -->
+        <!-- COLUMNA IZQUIERDA -->
         <div class="lg:col-span-8 space-y-8">
 
-            <!-- INPUT MONTO LISTA -->
+            <!-- INPUT MONTO -->
             <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
                 <div class="absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10 pointer-events-none">
                     <i class="fa-solid fa-money-bill-transfer text-9xl"></i>
@@ -329,8 +308,8 @@
             </div>
 
             <!-- LISTADO DE PAGOS -->
-            <div class="glass-panel rounded-3xl overflow-hidden min-h-[450px]">
-                <div class="p-6 bg-white/30 border-b border-white/20 flex justify-between items-center">
+            <div class="glass-panel rounded-3xl overflow-visible min-h-[450px]">
+                <div class="p-6 bg-white/30 border-b border-white/20 flex justify-between items-center rounded-t-3xl">
                     <h3 class="font-black text-slate-900 flex items-center gap-3 uppercase text-xs tracking-widest font-headline">
                         <span class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white text-[10px]">
                             <i class="fa-solid fa-receipt"></i>
@@ -346,36 +325,101 @@
                 <div class="divide-y divide-white/20">
                     <div v-for="(pay, index) in payments" :key="index"
                          :class="getTeamBorderClass(pay.planIndex)"
-                         class="p-6 hover:bg-white/30 transition relative group border-l-[12px]">
+                         class="p-6 hover:bg-white/30 transition relative border-l-[12px]">
 
-                        <div class="flex flex-col md:flex-row gap-6 mb-6">
-                            <div class="relative flex-1">
-                                <select v-model="pay.planIndex" @change="validateInput(index)"
-                                        class="w-full appearance-none glass-input rounded-2xl p-4 pr-12 text-sm font-bold text-slate-800 outline-none cursor-pointer border-none shadow-sm font-mono">
-                                    <option :value="-1" disabled>— Seleccionar Terminal y Plan —</option>
-                                    <option class="opt-efectivo" value="efectivo">EFECTIVO (SIN COSTO)</option>
-                                    <optgroup label="UNICOBROS">
-                                        <option :value="p.originalIndex" v-for="p in getPlansByTeam('Unicobros')">
-                                            {{ formatOptionLabel(p) }}
-                                        </option>
-                                    </optgroup>
-                                    <optgroup label="MP POINT">
-                                        <option :value="p.originalIndex" v-for="p in getPlansByTeam('MP Point')">
-                                            {{ formatOptionLabel(p) }}
-                                        </option>
-                                    </optgroup>
-                                    <optgroup label="FISERV">
-                                        <option :value="p.originalIndex" v-for="p in getPlansByTeam('Fiserv')">
-                                            {{ formatOptionLabel(p) }}
-                                        </option>
-                                    </optgroup>
-                                </select>
-                                <div class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                        <!-- ===== CUSTOM PLAN DROPDOWN ===== -->
+                        <div class="relative mb-6" @click.stop>
+                            <!-- Trigger -->
+                            <button @click="toggleDropdown(index)"
+                                    class="w-full glass-input rounded-2xl p-4 pr-12 text-sm text-left outline-none border-none shadow-sm relative cursor-pointer flex items-center gap-3 min-h-[58px]">
+                                <!-- Placeholder -->
+                                <span v-if="pay.planIndex === -1" class="text-slate-400 font-medium">
+                                    — Seleccionar Terminal y Plan —
+                                </span>
+                                <!-- Efectivo -->
+                                <template v-else-if="pay.planIndex === 'efectivo'">
+                                    <span class="w-3 h-3 rounded-full bg-red-500 shrink-0"></span>
+                                    <span class="font-black text-red-600 tracking-wide">EFECTIVO</span>
+                                    <span class="ml-auto text-xs font-mono bg-red-50 text-red-500 px-2 py-0.5 rounded-lg shrink-0">SIN COSTO</span>
+                                </template>
+                                <!-- Plan seleccionado -->
+                                <template v-else>
+                                    <span class="w-3 h-3 rounded-full shrink-0" :class="getTeamDotClass(pay.planIndex)"></span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest shrink-0 opacity-50" :class="getTeamTextClass(pay.planIndex)">
+                                        {{ plans[pay.planIndex].team }}
+                                    </span>
+                                    <span class="font-bold text-slate-800">{{ plans[pay.planIndex].name }}</span>
+                                    <span class="ml-auto text-xs font-mono shrink-0 px-2 py-0.5 rounded-lg font-bold" :class="getTeamBadgeClass(pay.planIndex)">
+                                        +{{ ((plans[pay.planIndex].coefficient - 1) * 100).toFixed(2) }}%
+                                    </span>
+                                </template>
+                                <!-- Chevron -->
+                                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-transform duration-200"
+                                     :class="openDropdownIndex === index ? 'rotate-180' : ''">
                                     <i class="fa-solid fa-angle-down"></i>
+                                </div>
+                            </button>
+
+                            <!-- Dropdown Panel -->
+                            <div v-if="openDropdownIndex === index"
+                                 @click.stop
+                                 class="absolute top-full left-0 right-0 mt-2 z-[70] plan-dropdown rounded-2xl overflow-hidden dropdown-enter"
+                                 style="max-height: 320px; overflow-y: auto;">
+
+                                <!-- Efectivo -->
+                                <div @click="selectPlan(index, 'efectivo')"
+                                     class="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-red-50/70 transition border-l-4 border-l-red-500">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"></span>
+                                    <span class="text-sm font-black text-red-600 flex-1">EFECTIVO</span>
+                                    <span class="text-xs font-mono text-red-400 bg-red-50 px-2 py-0.5 rounded-lg font-bold">SIN COSTO</span>
+                                </div>
+
+                                <!-- UNICOBROS -->
+                                <div class="px-5 py-2 bg-purple-50/70 border-t border-purple-100/50 flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-purple-600">Unicobros</span>
+                                </div>
+                                <div v-for="p in getPlansByTeam('Unicobros')" :key="'dp-u-'+p.originalIndex"
+                                     @click="selectPlan(index, p.originalIndex)"
+                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-purple-50/60 transition border-l-4 border-l-purple-300">
+                                    <span class="text-sm font-semibold text-slate-700 flex-1">{{ p.name }}</span>
+                                    <span class="text-xs font-mono font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-lg shrink-0">
+                                        +{{ ((p.coefficient - 1) * 100).toFixed(2) }}%
+                                    </span>
+                                </div>
+
+                                <!-- MP POINT -->
+                                <div class="px-5 py-2 bg-amber-50/70 border-t border-amber-100/50 flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-amber-600">MP Point</span>
+                                </div>
+                                <div v-for="p in getPlansByTeam('MP Point')" :key="'dp-m-'+p.originalIndex"
+                                     @click="selectPlan(index, p.originalIndex)"
+                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-amber-50/60 transition border-l-4 border-l-amber-300">
+                                    <span class="text-sm font-semibold text-slate-700 flex-1">{{ p.name }}</span>
+                                    <span class="text-xs font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg shrink-0">
+                                        +{{ ((p.coefficient - 1) * 100).toFixed(2) }}%
+                                    </span>
+                                </div>
+
+                                <!-- FISERV -->
+                                <div class="px-5 py-2 bg-orange-50/70 border-t border-orange-100/50 flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-orange-500"></div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-orange-600">Fiserv</span>
+                                </div>
+                                <div v-for="p in getPlansByTeam('Fiserv')" :key="'dp-f-'+p.originalIndex"
+                                     @click="selectPlan(index, p.originalIndex)"
+                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-orange-50/60 transition border-l-4 border-l-orange-300">
+                                    <span class="text-sm font-semibold text-slate-700 flex-1">{{ p.name }}</span>
+                                    <span class="text-xs font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-lg shrink-0">
+                                        +{{ ((p.coefficient - 1) * 100).toFixed(2) }}%
+                                    </span>
                                 </div>
                             </div>
                         </div>
+                        <!-- ===== FIN DROPDOWN ===== -->
 
+                        <!-- Monto + resultado -->
                         <div class="flex items-center gap-8">
                             <div class="flex-1">
                                 <div class="flex justify-between items-center mb-3">
@@ -386,7 +430,7 @@
                                         <div :class="{'bg-ryr/20': pay.isLimitMode}"
                                              class="w-10 h-5 bg-slate-200/50 rounded-full relative transition-colors shadow-inner">
                                             <div :class="{'translate-x-5 bg-ryr': pay.isLimitMode, 'bg-slate-300': !pay.isLimitMode}"
-                                                 class="w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-0"></div>
+                                                 class="w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 absolute top-0"></div>
                                         </div>
                                         <span :class="pay.isLimitMode ? 'text-ryr' : 'text-slate-400'"
                                               class="text-[10px] uppercase font-black tracking-widest">Es Límite</span>
@@ -429,12 +473,11 @@
             </div>
         </div><!-- /col-span-8 -->
 
-        <!-- ===== SIDEBAR RESUMEN ===== -->
+        <!-- ===== SIDEBAR ===== -->
         <div class="lg:col-span-4 lg:sticky lg:top-10">
             <div class="glass-panel p-8 rounded-[2rem] shadow-xl border-t-8 border-t-ryr">
                 <h3 class="text-xl font-black text-slate-900 mb-8 pb-4 border-b border-white/30 uppercase tracking-tighter font-headline">Estado de Cuenta</h3>
 
-                <!-- Barra de progreso -->
                 <div class="mb-8">
                     <div class="flex justify-between text-[10px] mb-3 font-black uppercase tracking-[0.2em]">
                         <span class="text-slate-400">Progreso de Pago</span>
@@ -449,7 +492,6 @@
                     </div>
                 </div>
 
-                <!-- Stats -->
                 <div class="space-y-4 mb-10">
                     <div class="flex justify-between items-center px-4 py-3 glass-panel rounded-xl border-none">
                         <span class="text-slate-500 font-bold uppercase text-[9px] tracking-widest">Importe Original</span>
@@ -462,7 +504,6 @@
                               class="font-black font-mono text-lg">${{ formatMoney(totalCovered) }}</span>
                     </div>
 
-                    <!-- Total a cobrar -->
                     <div class="bg-ryr p-8 rounded-3xl text-center shadow-[0_15px_30px_rgba(220,38,38,0.3)] my-8 relative overflow-hidden group">
                         <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <span class="text-red-100 text-[10px] font-black uppercase tracking-[0.3em] block mb-2">Total a Percibir</span>
@@ -472,7 +513,6 @@
                     </div>
                 </div>
 
-                <!-- Coeficiente -->
                 <div v-if="totalCharge > 0 && totalAmount > 0" class="mb-8">
                     <div @click="copyCoefficient"
                          class="bg-amber-400 p-6 rounded-[1.5rem] shadow-lg text-center transform transition hover:scale-[1.02] cursor-pointer relative overflow-hidden border-2 border-white/30">
@@ -488,7 +528,6 @@
                     </div>
                 </div>
 
-                <!-- Financiar resto -->
                 <button v-if="remainingAmount > 1" @click="addRemainingPayment"
                         class="w-full py-5 glass-button-primary text-white font-black rounded-2xl shadow-xl transition transform active:scale-95 flex justify-center items-center gap-3 uppercase tracking-widest text-[10px] cursor-pointer">
                     <i class="fa-solid fa-plus-circle text-lg"></i> Financiar Remanente
@@ -541,6 +580,7 @@
                 plans: this.loadPlans(),
                 payments: [],
                 showCopied: false,
+                openDropdownIndex: null,
 
                 /* --- Config panel --- */
                 showConfigModal:     false,
@@ -557,6 +597,11 @@
                 loader.style.opacity = '0';
                 setTimeout(() => loader.style.display = 'none', 700);
             }
+            // Cerrar dropdown al hacer click fuera
+            document.addEventListener('click', this.closeAllDropdowns);
+        },
+        beforeUnmount() {
+            document.removeEventListener('click', this.closeAllDropdowns);
         },
         computed: {
             totalCovered() {
@@ -589,6 +634,19 @@
             },
             savePlansToStorage() {
                 localStorage.setItem(LS_KEY, JSON.stringify(this.plans));
+            },
+
+            /* -------- Dropdown custom -------- */
+            toggleDropdown(index) {
+                this.openDropdownIndex = this.openDropdownIndex === index ? null : index;
+            },
+            closeAllDropdowns() {
+                this.openDropdownIndex = null;
+            },
+            selectPlan(rowIndex, planIndex) {
+                this.payments[rowIndex].planIndex = planIndex;
+                this.openDropdownIndex = null;
+                this.validateInput(rowIndex);
             },
 
             /* -------- Config modal -------- */
@@ -650,11 +708,13 @@
                 return this.plans.map((p, i) => ({ ...p, originalIndex: i }))
                                  .filter(p => p.team.includes(teamName));
             },
-            formatOptionLabel(p) {
-                const percentValue = ((p.coefficient - 1) * 100).toFixed(2) + '%';
-                const paddingLength = 28 - p.name.length;
-                const padding = paddingLength > 0 ? '.'.repeat(paddingLength) : ' ';
-                return `${p.name} ${padding} ${percentValue}`;
+            getTeamDotClass(idx) {
+                if (idx === -1 || idx === 'efectivo') return 'bg-red-500';
+                const team = this.plans[idx].team;
+                if (team === 'Fiserv')    return 'bg-orange-500';
+                if (team === 'MP Point')  return 'bg-amber-500';
+                if (team === 'Unicobros') return 'bg-purple-500';
+                return 'bg-slate-400';
             },
             getTeamBorderClass(idx) {
                 if (idx === -1) return 'border-l-slate-200';
