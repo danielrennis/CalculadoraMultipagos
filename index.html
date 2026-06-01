@@ -1,223 +1,292 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Multipagos RyR</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sistema Multipagos RyR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://unpkg.com/vue@3.3.4/dist/vue.global.prod.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;600;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+
+    [v-cloak] { display: none; }
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.prod.js"></script>
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
 
-    <style>
-        [v-cloak] { display: none; }
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        body { background-color: #f1f5f9; }
-        
-        .bg-ryr { background-color: #004a99; }
-        .text-ryr { color: #004a99; }
-        .border-ryr { border-color: #004a99; }
+    body { 
+        background: radial-gradient(circle at top left, #fee2e2 0%, #f7f9fb 40%, #ffffff 100%);
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .opt-efectivo { 
-            color: #ef4444 !important; 
-            font-weight: 900 !important;
-            background-color: #fef2f2;
-        }
+    h1, h2, h3, .font-headline {
+        font-family: 'Hanken Grotesk', sans-serif;
+    }
 
-        .copied-anim { animation: copiedBounce 0.5s; }
-        @keyframes copiedBounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
+    /* Glassmorphism Styles */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.55);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.09),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
 
-        .modal-enter { animation: modalIn 0.25s ease; }
-        @keyframes modalIn {
-            from { opacity: 0; transform: translateY(16px) scale(0.98); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
+    .glass-button-primary {
+        background: rgba(220, 38, 38, 0.85);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+    }
+    .glass-button-primary:hover {
+        background: rgba(220, 38, 38, 1);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+    }
 
-        .gear-spin:hover { animation: gearRotate 0.6s ease; }
-        @keyframes gearRotate {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(90deg); }
-        }
+    .glass-button-secondary {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        transition: all 0.3s ease;
+    }
+    .glass-button-secondary:hover {
+        background: rgba(255, 255, 255, 0.6);
+        transform: translateY(-1px);
+    }
 
-        .save-flash { animation: saveFlash 0.4s ease; }
-        @keyframes saveFlash {
-            0%   { background-color: #004a99; }
-            50%  { background-color: #16a34a; }
-            100% { background-color: #004a99; }
-        }
-    </style>
+    .glass-input {
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        transition: all 0.2s ease;
+    }
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.8) !important;
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1) !important;
+    }
+
+    /* Branding Colors */
+    .text-ryr { color: #dc2626; }
+    .bg-ryr { background-color: #dc2626; }
+    .border-ryr { border-color: #dc2626; }
+    .border-l-ryr { border-left-color: #dc2626; }
+
+    .opt-efectivo { 
+        color: #dc2626 !important; 
+        font-weight: 800 !important;
+        background-color: #fff1f2;
+    }
+
+    /* Animations */
+    .copied-anim { animation: copiedBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes copiedBounce {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .modal-enter { animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+
+    .gear-spin:hover { animation: gearRotate 0.8s ease-in-out; }
+    @keyframes gearRotate {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(180deg); }
+    }
+
+    @keyframes loading {
+        0%   { width: 0%;   margin-left: 0%; }
+        50%  { width: 50%;  margin-left: 25%; }
+        100% { width: 0%;   margin-left: 100%; }
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+</style>
 </head>
-<body class="text-slate-800 font-sans">
+<body class="text-slate-900">
 
-<div id="loading-msg" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-100 z-50 transition-opacity duration-500">
+<!-- LOADER -->
+<div class="fixed inset-0 flex flex-col items-center justify-center bg-white z-[100] transition-opacity duration-700" id="loading-msg">
     <div class="text-center">
-        <h2 class="text-xl font-bold text-slate-700 mb-2 uppercase tracking-tighter">Cargando Sistema RyR...</h2>
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-ryr mx-auto"></div>
+        <h2 class="text-2xl font-black text-slate-800 mb-4 uppercase tracking-widest font-headline">RYR SISTEMAS</h2>
+        <div class="w-12 h-1 bg-slate-100 mx-auto rounded-full overflow-hidden">
+            <div class="h-full bg-ryr animate-[loading_1.5s_infinite_ease-in-out]"></div>
+        </div>
     </div>
 </div>
 
-<div id="app" v-cloak class="min-h-screen p-4 md:p-8 max-w-6xl mx-auto">
+<div class="min-h-screen p-4 md:p-10 max-w-7xl mx-auto" id="app" v-cloak>
 
     <!-- ===== HEADER ===== -->
-    <header class="flex justify-between items-center mb-8 bg-white p-5 rounded-xl shadow-sm border-l-8 border-ryr">
+    <header class="flex justify-between items-center mb-10 glass-panel p-6 rounded-2xl border-l-[6px] border-l-ryr">
         <div>
-            <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight uppercase">Sistema Multipagos</h1>
-            <p class="text-ryr font-bold text-lg uppercase tracking-widest">RyR Computación</p>
+            <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight uppercase leading-none font-headline">Sistema Multipagos</h1>
+            <p class="text-ryr font-bold text-sm uppercase tracking-[0.2em] mt-1">RyR Computación</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
             <div class="text-right hidden md:block">
-                <p class="text-xs text-slate-400 font-mono">v5.0.0 Stable</p>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Admin: Daniel</p>
+                <p class="text-[10px] text-slate-400 font-mono tracking-wider">SECURE-V5-STABLE</p>
+                <p class="text-xs text-slate-600 font-bold uppercase">Admin: Daniel</p>
             </div>
             <button @click="openConfig"
-                    class="gear-spin w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition cursor-pointer"
+                    class="gear-spin w-12 h-12 rounded-xl glass-button-secondary flex items-center justify-center text-slate-600 hover:text-ryr transition shadow-sm cursor-pointer"
                     title="Configurar Planes">
-                <i class="fa-solid fa-gear"></i>
+                <i class="fa-solid fa-gear text-xl"></i>
             </button>
         </div>
     </header>
 
     <!-- ===== MODAL CONFIGURACIÓN ===== -->
     <div v-if="showConfigModal"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         style="background: rgba(15,23,42,0.65); backdrop-filter: blur(6px);">
+         class="fixed inset-0 z-[60] flex items-center justify-center p-4"
+         style="background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);">
 
         <!-- PANTALLA DE CONTRASEÑA -->
-        <div v-if="!configAuthenticated" class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm modal-enter">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-ryr/10">
-                    <i class="fa-solid fa-lock text-2xl text-ryr"></i>
+        <div v-if="!configAuthenticated" class="glass-panel rounded-3xl shadow-2xl p-10 w-full max-w-md modal-enter">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 glass-button-secondary text-ryr">
+                    <i class="fa-solid fa-shield-halved text-3xl"></i>
                 </div>
-                <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">Configuración</h2>
-                <p class="text-sm text-slate-400 mt-1">Contraseña de administrador</p>
+                <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight font-headline">Área Restringida</h2>
+                <p class="text-sm text-slate-500 mt-2">Ingrese sus credenciales de administrador</p>
             </div>
-            <input id="config-pass-input"
-                   type="password"
-                   v-model="configPasswordInput"
-                   @keyup.enter="submitPassword"
-                   class="w-full px-4 py-3 border-2 rounded-xl outline-none text-center text-xl font-bold tracking-[0.4em] transition"
-                   :class="configPasswordError ? 'border-red-400 bg-red-50 text-red-600' : 'border-slate-200 focus:border-ryr'"
-                   placeholder="••••••••">
-            <p v-if="configPasswordError" class="text-red-500 text-xs text-center mt-2 font-bold">
-                <i class="fa-solid fa-circle-exclamation mr-1"></i>Contraseña incorrecta
-            </p>
-            <div class="flex gap-3 mt-5">
-                <button @click="closeConfig"
-                        class="flex-1 py-3 rounded-xl border-2 border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition cursor-pointer text-sm">
-                    Cancelar
-                </button>
-                <button @click="submitPassword"
-                        class="flex-1 py-3 rounded-xl bg-ryr text-white font-bold hover:opacity-90 transition cursor-pointer text-sm">
-                    Entrar
-                </button>
+            <div class="space-y-4">
+                <input id="config-pass-input"
+                       type="password"
+                       v-model="configPasswordInput"
+                       @keyup.enter="submitPassword"
+                       :class="configPasswordError ? 'border-red-500 bg-red-50/50 text-red-600' : ''"
+                       class="w-full px-6 py-4 glass-input rounded-2xl outline-none text-center text-2xl font-bold tracking-[0.5em] transition border-none"
+                       placeholder="••••">
+                <p v-if="configPasswordError" class="text-red-600 text-xs text-center font-bold animate-pulse">
+                    Acceso denegado. Intente nuevamente.
+                </p>
+                <div class="flex gap-4 mt-8">
+                    <button @click="closeConfig"
+                            class="flex-1 py-4 rounded-2xl glass-button-secondary text-slate-600 font-bold text-sm uppercase tracking-wider cursor-pointer">
+                        Cerrar
+                    </button>
+                    <button @click="submitPassword"
+                            class="flex-1 py-4 rounded-2xl glass-button-primary text-white font-bold text-sm uppercase tracking-wider cursor-pointer">
+                        Ingresar
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- PANEL DE PLANES -->
-        <div v-else class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl modal-enter flex flex-col" style="max-height: 90vh;">
+        <div v-else class="glass-panel rounded-3xl shadow-2xl w-full max-w-3xl modal-enter flex flex-col overflow-hidden" style="max-height: 85vh;">
 
             <!-- Header del panel -->
-            <div class="flex justify-between items-start p-6 border-b border-slate-100 shrink-0">
+            <div class="flex justify-between items-start p-8 border-b border-white/20 shrink-0 bg-white/20">
                 <div>
-                    <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-ryr text-base"></i>
-                        Configurar Planes
+                    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3 font-headline">
+                        <span class="w-8 h-8 rounded-lg bg-ryr flex items-center justify-center text-white text-xs">
+                            <i class="fa-solid fa-sliders"></i>
+                        </span>
+                        Gestión de Coeficientes
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">
-                        Ingresá el <strong>% que te debita</strong> cada terminal. El coeficiente se calcula solo.
-                    </p>
+                    <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest font-medium">Ajuste de márgenes operativos por terminal</p>
                 </div>
                 <button @click="closeConfig"
-                        class="w-8 h-8 rounded-full bg-slate-100 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition cursor-pointer shrink-0 ml-4">
-                    <i class="fa-solid fa-xmark text-sm"></i>
+                        class="w-10 h-10 rounded-xl glass-button-secondary flex items-center justify-center hover:text-red-600 transition shrink-0 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             <!-- Cuerpo scrolleable -->
-            <div class="overflow-y-auto flex-1 p-4 space-y-4">
+            <div class="overflow-y-auto flex-1 p-6 space-y-8 bg-white/10">
 
                 <!-- Cabecera de columnas -->
-                <div class="grid grid-cols-12 gap-2 px-3">
+                <div class="grid grid-cols-12 gap-4 px-3">
                     <span class="col-span-5 text-[10px] font-black uppercase tracking-wider text-slate-400">Plan</span>
                     <span class="col-span-3 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">% Costo</span>
                     <span class="col-span-4 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Coeficiente</span>
                 </div>
 
                 <!-- UNICOBROS -->
-                <div>
-                    <div class="flex items-center gap-2 px-3 py-1.5 mb-1 bg-purple-50 rounded-lg">
-                        <div class="w-2 h-2 rounded-full bg-purple-600"></div>
-                        <span class="text-xs font-black uppercase tracking-widest text-purple-700">Unicobros</span>
+                <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-purple-500">
+                    <div class="flex items-center gap-2 mb-4 px-2">
+                        <span class="text-xs font-black uppercase tracking-[0.2em] text-purple-600">Terminal Unicobros</span>
                     </div>
-                    <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'Unicobros')" :key="'u'+i"
-                         class="grid grid-cols-12 gap-2 items-center px-3 py-2 rounded-lg hover:bg-slate-50 transition group">
-                        <span class="col-span-5 text-xs font-semibold text-slate-600 leading-tight">{{ plan.name }}</span>
-                        <div class="col-span-3 relative">
-                            <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
-                                   step="0.01" min="0" max="99"
-                                   class="w-full text-center pr-5 pl-2 py-1.5 border-2 border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-purple-500 transition bg-white">
-                            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">%</span>
-                        </div>
-                        <div class="col-span-4 text-right">
-                            <span class="font-black font-mono text-sm transition"
-                                  :class="plan.costPercent == 0 ? 'text-slate-300' : 'text-purple-700'">
-                                {{ plan.coefficient.toFixed(4) }}
-                            </span>
+                    <div class="space-y-2">
+                        <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'Unicobros')" :key="'u'+i"
+                             class="grid grid-cols-12 gap-4 items-center p-3 rounded-xl hover:bg-white/40 transition">
+                            <span class="col-span-5 text-sm font-bold text-slate-700">{{ plan.name }}</span>
+                            <div class="col-span-3 relative">
+                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
+                                       step="0.01" min="0" max="99"
+                                       class="w-full text-center pr-6 pl-2 py-2 glass-input rounded-xl text-sm font-black text-slate-800 border-none outline-none">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">%</span>
+                            </div>
+                            <div class="col-span-4 text-right">
+                                <span class="font-mono text-sm font-bold bg-purple-50 text-purple-700 px-3 py-1 rounded-lg">
+                                    {{ plan.coefficient.toFixed(4) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- MP POINT -->
-                <div>
-                    <div class="flex items-center gap-2 px-3 py-1.5 mb-1 bg-yellow-50 rounded-lg">
-                        <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
-                        <span class="text-xs font-black uppercase tracking-widest text-yellow-700">MP Point</span>
+                <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-amber-500">
+                    <div class="flex items-center gap-2 mb-4 px-2">
+                        <span class="text-xs font-black uppercase tracking-[0.2em] text-amber-600">Terminal MP Point</span>
                     </div>
-                    <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'MP Point')" :key="'m'+i"
-                         class="grid grid-cols-12 gap-2 items-center px-3 py-2 rounded-lg hover:bg-slate-50 transition">
-                        <span class="col-span-5 text-xs font-semibold text-slate-600 leading-tight">{{ plan.name }}</span>
-                        <div class="col-span-3 relative">
-                            <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
-                                   step="0.01" min="0" max="99"
-                                   class="w-full text-center pr-5 pl-2 py-1.5 border-2 border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-yellow-500 transition bg-white">
-                            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">%</span>
-                        </div>
-                        <div class="col-span-4 text-right">
-                            <span class="font-black font-mono text-sm"
-                                  :class="plan.costPercent == 0 ? 'text-slate-300' : 'text-yellow-600'">
-                                {{ plan.coefficient.toFixed(4) }}
-                            </span>
+                    <div class="space-y-2">
+                        <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'MP Point')" :key="'m'+i"
+                             class="grid grid-cols-12 gap-4 items-center p-3 rounded-xl hover:bg-white/40 transition">
+                            <span class="col-span-5 text-sm font-bold text-slate-700">{{ plan.name }}</span>
+                            <div class="col-span-3 relative">
+                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
+                                       step="0.01" min="0" max="99"
+                                       class="w-full text-center pr-6 pl-2 py-2 glass-input rounded-xl text-sm font-black text-slate-800 border-none outline-none">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">%</span>
+                            </div>
+                            <div class="col-span-4 text-right">
+                                <span class="font-mono text-sm font-bold bg-amber-50 text-amber-700 px-3 py-1 rounded-lg">
+                                    {{ plan.coefficient.toFixed(4) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- FISERV -->
-                <div>
-                    <div class="flex items-center gap-2 px-3 py-1.5 mb-1 bg-orange-50 rounded-lg">
-                        <div class="w-2 h-2 rounded-full bg-orange-500"></div>
-                        <span class="text-xs font-black uppercase tracking-widest text-orange-700">Fiserv</span>
+                <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-orange-500">
+                    <div class="flex items-center gap-2 mb-4 px-2">
+                        <span class="text-xs font-black uppercase tracking-[0.2em] text-orange-600">Terminal Fiserv</span>
                     </div>
-                    <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'Fiserv')" :key="'f'+i"
-                         class="grid grid-cols-12 gap-2 items-center px-3 py-2 rounded-lg hover:bg-slate-50 transition">
-                        <span class="col-span-5 text-xs font-semibold text-slate-600 leading-tight">{{ plan.name }}</span>
-                        <div class="col-span-3 relative">
-                            <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
-                                   step="0.01" min="0" max="99"
-                                   class="w-full text-center pr-5 pl-2 py-1.5 border-2 border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-orange-500 transition bg-white">
-                            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">%</span>
-                        </div>
-                        <div class="col-span-4 text-right">
-                            <span class="font-black font-mono text-sm"
-                                  :class="plan.costPercent == 0 ? 'text-slate-300' : 'text-orange-600'">
-                                {{ plan.coefficient.toFixed(4) }}
-                            </span>
+                    <div class="space-y-2">
+                        <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'Fiserv')" :key="'f'+i"
+                             class="grid grid-cols-12 gap-4 items-center p-3 rounded-xl hover:bg-white/40 transition">
+                            <span class="col-span-5 text-sm font-bold text-slate-700">{{ plan.name }}</span>
+                            <div class="col-span-3 relative">
+                                <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
+                                       step="0.01" min="0" max="99"
+                                       class="w-full text-center pr-6 pl-2 py-2 glass-input rounded-xl text-sm font-black text-slate-800 border-none outline-none">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">%</span>
+                            </div>
+                            <div class="col-span-4 text-right">
+                                <span class="font-mono text-sm font-bold bg-orange-50 text-orange-700 px-3 py-1 rounded-lg">
+                                    {{ plan.coefficient.toFixed(4) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -225,176 +294,211 @@
             </div>
 
             <!-- Footer del panel -->
-            <div class="p-4 border-t border-slate-100 flex gap-3 shrink-0">
+            <div class="p-6 border-t border-white/20 bg-white/20 flex gap-4 shrink-0">
                 <button @click="closeConfig"
-                        class="flex-1 py-3 rounded-xl border-2 border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition cursor-pointer text-sm">
+                        class="flex-1 py-4 rounded-2xl glass-button-secondary text-slate-600 font-bold text-xs uppercase tracking-widest cursor-pointer">
                     Cancelar
                 </button>
-                <button @click="saveConfig" :id="'save-config-btn'"
-                        class="flex-1 py-3 rounded-xl bg-ryr text-white font-bold hover:opacity-90 transition cursor-pointer text-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    {{ configSaved ? '¡Guardado!' : 'Guardar Cambios' }}
+                <button @click="saveConfig" id="save-config-btn"
+                        class="flex-1 py-4 rounded-2xl glass-button-primary text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-cloud-arrow-up" v-if="!configSaved"></i>
+                    <i class="fa-solid fa-check" v-else></i>
+                    {{ configSaved ? '¡Cambios Guardados!' : 'Aplicar Configuración' }}
                 </button>
             </div>
         </div>
     </div>
 
     <!-- ===== GRID PRINCIPAL ===== -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-8 space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <label class="block text-sm font-bold text-slate-500 mb-1 uppercase tracking-wide">Monto de Lista (Precio Público)</label>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- COLUMNA IZQUIERDA (8) -->
+        <div class="lg:col-span-8 space-y-8">
+
+            <!-- INPUT MONTO LISTA -->
+            <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10 pointer-events-none">
+                    <i class="fa-solid fa-money-bill-transfer text-9xl"></i>
+                </div>
+                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-[0.3em]">Precio de Lista (Base)</label>
                 <div class="relative">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-2xl font-light">$</span>
-                    <input v-model.number="totalAmount" type="number"
-                           class="w-full pl-10 pr-4 py-4 text-4xl font-bold text-slate-800 border-2 border-slate-200 rounded-xl focus:border-ryr focus:ring-0 outline-none transition placeholder-slate-200"
-                           placeholder="0.00">
+                    <span class="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300 text-5xl font-light">$</span>
+                    <input class="w-full pl-12 pr-4 py-4 text-6xl font-black text-slate-900 bg-transparent border-none focus:ring-0 outline-none placeholder-slate-200 font-headline"
+                           placeholder="0.00" type="number" v-model.number="totalAmount">
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
-                <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700 flex items-center gap-2 uppercase text-xs tracking-widest font-black">
-                        <i class="fa-regular fa-credit-card"></i> Desglose de Pagos
+            <!-- LISTADO DE PAGOS -->
+            <div class="glass-panel rounded-3xl overflow-hidden min-h-[450px]">
+                <div class="p-6 bg-white/30 border-b border-white/20 flex justify-between items-center">
+                    <h3 class="font-black text-slate-900 flex items-center gap-3 uppercase text-xs tracking-widest font-headline">
+                        <span class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white text-[10px]">
+                            <i class="fa-solid fa-receipt"></i>
+                        </span>
+                        Desglose de Operación
                     </h3>
-                    <button @click="addPaymentRow" :disabled="remainingAmount <= 0.1"
-                            class="text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm uppercase tracking-widest bg-ryr text-white hover:opacity-90 disabled:bg-slate-100 disabled:text-slate-400 cursor-pointer">
-                        <i class="fa-solid fa-plus"></i> Agregar Medio
+                    <button :disabled="remainingAmount <= 0.1" @click="addPaymentRow"
+                            class="text-[10px] font-black px-6 py-3 rounded-xl transition flex items-center gap-2 shadow-sm uppercase tracking-widest glass-button-primary text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                        <i class="fa-solid fa-plus-circle text-sm"></i> Nuevo Pago
                     </button>
                 </div>
 
-                <div class="divide-y divide-slate-100">
+                <div class="divide-y divide-white/20">
                     <div v-for="(pay, index) in payments" :key="index"
-                         class="p-5 hover:bg-slate-50 transition relative group border-l-[10px]"
-                         :class="getTeamBorderClass(pay.planIndex)">
+                         :class="getTeamBorderClass(pay.planIndex)"
+                         class="p-6 hover:bg-white/30 transition relative group border-l-[12px]">
 
-                        <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <div class="flex flex-col md:flex-row gap-6 mb-6">
                             <div class="relative flex-1">
                                 <select v-model="pay.planIndex" @change="validateInput(index)"
-                                        class="w-full appearance-none border border-slate-300 rounded-lg p-3 pr-8 text-sm bg-white focus:border-ryr outline-none cursor-pointer font-bold text-slate-700 font-mono">
-                                    <option :value="-1" disabled>Seleccionar Medio de Pago...</option>
-                                    <option value="efectivo" class="opt-efectivo">EFECTIVO (0%)</option>
+                                        class="w-full appearance-none glass-input rounded-2xl p-4 pr-12 text-sm font-bold text-slate-800 outline-none cursor-pointer border-none shadow-sm font-mono">
+                                    <option :value="-1" disabled>— Seleccionar Terminal y Plan —</option>
+                                    <option class="opt-efectivo" value="efectivo">EFECTIVO (SIN COSTO)</option>
                                     <optgroup label="UNICOBROS">
-                                        <option v-for="p in getPlansByTeam('Unicobros')" :value="p.originalIndex">
+                                        <option :value="p.originalIndex" v-for="p in getPlansByTeam('Unicobros')">
                                             {{ formatOptionLabel(p) }}
                                         </option>
                                     </optgroup>
                                     <optgroup label="MP POINT">
-                                        <option v-for="p in getPlansByTeam('MP Point')" :value="p.originalIndex">
+                                        <option :value="p.originalIndex" v-for="p in getPlansByTeam('MP Point')">
                                             {{ formatOptionLabel(p) }}
                                         </option>
                                     </optgroup>
                                     <optgroup label="FISERV">
-                                        <option v-for="p in getPlansByTeam('Fiserv')" :value="p.originalIndex">
+                                        <option :value="p.originalIndex" v-for="p in getPlansByTeam('Fiserv')">
                                             {{ formatOptionLabel(p) }}
                                         </option>
                                     </optgroup>
                                 </select>
-                                <div class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                <div class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                                    <i class="fa-solid fa-angle-down"></i>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex items-end gap-6">
+                        <div class="flex items-center gap-8">
                             <div class="flex-1">
-                                <div class="flex justify-between items-center mb-2">
-                                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                        {{ pay.isLimitMode ? 'Límite Tarjeta' : 'Monto a Cubrir' }}
+                                <div class="flex justify-between items-center mb-3">
+                                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                        {{ pay.isLimitMode ? 'Monto Máximo POS' : 'Monto a Cubrir' }}
                                     </label>
-                                    <div class="flex items-center gap-2 cursor-pointer select-none" @click="toggleLimitMode(index)">
-                                        <div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors" :class="{'bg-ryr/20': pay.isLimitMode}">
-                                            <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 absolute top-0"
-                                                 :class="{'translate-x-4 bg-ryr': pay.isLimitMode, 'bg-slate-400': !pay.isLimitMode}"></div>
+                                    <div @click="toggleLimitMode(index)" class="flex items-center gap-3 cursor-pointer select-none">
+                                        <div :class="{'bg-ryr/20': pay.isLimitMode}"
+                                             class="w-10 h-5 bg-slate-200/50 rounded-full relative transition-colors shadow-inner">
+                                            <div :class="{'translate-x-5 bg-ryr': pay.isLimitMode, 'bg-slate-300': !pay.isLimitMode}"
+                                                 class="w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-0"></div>
                                         </div>
-                                        <span class="text-[10px] uppercase font-bold" :class="pay.isLimitMode ? 'text-ryr' : 'text-slate-400'">Es Límite</span>
+                                        <span :class="pay.isLimitMode ? 'text-ryr' : 'text-slate-400'"
+                                              class="text-[10px] uppercase font-black tracking-widest">Es Límite</span>
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xl">$</span>
                                     <input type="number" v-model.number="pay.amount" @input="validateInput(index)"
-                                           class="w-full pl-8 pr-3 py-2 border-2 rounded-lg font-bold text-lg outline-none transition border-slate-200 text-slate-700 focus:border-ryr">
+                                           class="w-full pl-10 pr-4 py-4 glass-input rounded-2xl font-black text-2xl outline-none transition border-none text-slate-800 shadow-inner font-headline">
                                 </div>
                             </div>
 
-                            <div class="w-1/3 text-right border-l pl-4 border-slate-100">
+                            <div class="w-[35%] text-right border-l-2 border-white/30 pl-8">
                                 <div v-if="pay.planIndex !== -1">
-                                    <p class="text-[10px] text-slate-400 mb-1 uppercase font-bold">Cobrar en POS:</p>
-                                    <p class="text-xl font-black text-slate-800 leading-none" :class="getTeamTextClass(pay.planIndex)">
-                                        ${{ formatMoney(calculateRow(pay).charge) }}
+                                    <p class="text-[9px] text-slate-400 mb-1 uppercase font-black tracking-widest">Cobro Final:</p>
+                                    <p :class="getTeamTextClass(pay.planIndex)" class="text-3xl font-black leading-none font-headline">
+                                        <span class="text-sm align-top mr-1 opacity-50">$</span>{{ formatMoney(calculateRow(pay).charge) }}
                                     </p>
-                                    <div class="mt-2 inline-block px-2 py-1 rounded text-[10px] font-bold border" :class="getTeamBadgeClass(pay.planIndex)">
+                                    <div :class="getTeamBadgeClass(pay.planIndex)"
+                                         class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black border tracking-wider">
+                                        <i class="fa-solid fa-check-circle"></i>
                                         CUBRE: ${{ formatMoney(calculateRow(pay).principal) }}
                                     </div>
                                 </div>
                             </div>
 
                             <button @click="removePayment(index)"
-                                    class="text-slate-300 hover:text-red-500 w-8 h-8 rounded-full hover:bg-red-50 transition items-center justify-center mb-1 cursor-pointer">
-                                <i class="fa-solid fa-trash"></i>
+                                    class="text-slate-300 hover:text-red-500 w-12 h-12 rounded-2xl glass-button-secondary transition flex items-center justify-center shrink-0 cursor-pointer">
+                                <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
                     </div>
+
+                    <!-- EMPTY STATE -->
+                    <div v-if="payments.length === 0" class="flex flex-col items-center justify-center py-20 opacity-20">
+                        <i class="fa-solid fa-folder-open text-7xl mb-4"></i>
+                        <p class="text-xs font-black uppercase tracking-[0.4em]">Sin movimientos cargados</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </div><!-- /col-span-8 -->
 
-        <!-- SIDEBAR -->
-        <div class="lg:col-span-4">
-            <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-100 sticky top-4">
-                <h3 class="text-lg font-black text-slate-800 mb-6 pb-2 border-b border-slate-100 uppercase tracking-tighter">Resumen RyR</h3>
+        <!-- ===== SIDEBAR RESUMEN ===== -->
+        <div class="lg:col-span-4 lg:sticky lg:top-10">
+            <div class="glass-panel p-8 rounded-[2rem] shadow-xl border-t-8 border-t-ryr">
+                <h3 class="text-xl font-black text-slate-900 mb-8 pb-4 border-b border-white/30 uppercase tracking-tighter font-headline">Estado de Cuenta</h3>
 
-                <div class="mb-6">
-                    <div class="flex justify-between text-xs mb-2 font-bold uppercase tracking-widest">
-                        <span class="text-slate-500">Progreso Pago</span>
-                        <span :class="remainingAmount > 0.1 ? 'text-orange-500' : 'text-green-600'">
-                            {{ Math.min(Math.round((totalCovered / (totalAmount || 1)) * 100), 100) }}%
+                <!-- Barra de progreso -->
+                <div class="mb-8">
+                    <div class="flex justify-between text-[10px] mb-3 font-black uppercase tracking-[0.2em]">
+                        <span class="text-slate-400">Progreso de Pago</span>
+                        <span :class="remainingAmount > 0.1 ? 'text-ryr' : 'text-emerald-500'">
+                            {{ Math.min(Math.round((totalCovered / (totalAmount || 1)) * 100), 100) }}% COMPLETADO
                         </span>
                     </div>
-                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                        <div class="h-full transition-all duration-500"
-                             :class="remainingAmount > 0.1 ? 'bg-orange-400' : 'bg-green-500'"
-                             :style="{ width: Math.min((totalCovered / (totalAmount || 1)) * 100, 100) + '%' }"></div>
+                    <div class="w-full bg-white/40 rounded-full h-4 p-1 shadow-inner overflow-hidden border border-white/20">
+                        <div :class="remainingAmount > 0.1 ? 'bg-ryr' : 'bg-emerald-500'"
+                             :style="{ width: Math.min((totalCovered / (totalAmount || 1)) * 100, 100) + '%' }"
+                             class="h-full rounded-full transition-all duration-1000 ease-out shadow-sm"></div>
                     </div>
                 </div>
 
-                <div class="space-y-3 mb-6 font-mono text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-500 font-sans font-bold uppercase text-[10px]">Total Lista:</span>
-                        <span class="font-bold text-slate-800">${{ formatMoney(totalAmount) }}</span>
+                <!-- Stats -->
+                <div class="space-y-4 mb-10">
+                    <div class="flex justify-between items-center px-4 py-3 glass-panel rounded-xl border-none">
+                        <span class="text-slate-500 font-bold uppercase text-[9px] tracking-widest">Importe Original</span>
+                        <span class="font-black text-slate-800 font-mono text-lg">${{ formatMoney(totalAmount) }}</span>
                     </div>
-                    <div class="flex justify-between items-center" :class="{'text-green-600 font-bold': remainingAmount <= 0.1}">
-                        <span class="font-sans font-bold uppercase text-[10px]">Cubierto:</span>
-                        <span>${{ formatMoney(totalCovered) }}</span>
+                    <div :class="{'ring-2 ring-emerald-500/20': remainingAmount <= 0.1}"
+                         class="flex justify-between items-center px-4 py-3 glass-panel rounded-xl border-none">
+                        <span class="text-slate-500 font-bold uppercase text-[9px] tracking-widest">Monto Cubierto</span>
+                        <span :class="remainingAmount <= 0.1 ? 'text-emerald-600' : 'text-slate-800'"
+                              class="font-black font-mono text-lg">${{ formatMoney(totalCovered) }}</span>
                     </div>
 
-                    <div class="bg-ryr p-4 rounded-xl text-center shadow-lg my-6">
-                        <span class="text-blue-100 text-[10px] font-bold uppercase tracking-widest block mb-1">Total a Cobrar Cliente</span>
-                        <span class="text-3xl font-black text-white block tracking-tight">
-                            ${{ formatMoney(totalCharge) }}
-                        </span>
-                    </div>
-                </div>
-
-                <div v-if="totalCharge > 0 && totalAmount > 0" class="mb-6">
-                    <div class="bg-yellow-400 p-4 rounded-xl shadow-md text-center transform transition hover:scale-105 cursor-pointer relative"
-                         @click="copyCoefficient">
-                        <span class="text-yellow-900 text-[10px] font-black uppercase tracking-widest block mb-1">COEFICIENTE SISTEMA</span>
-                        <div class="text-4xl font-black text-yellow-900 tracking-tighter font-mono">{{ finalCoefficient }}</div>
-                        <span v-if="showCopied" class="absolute inset-0 bg-green-600 text-white font-bold flex items-center justify-center rounded-xl copied-anim">
-                            <i class="fa-solid fa-check mr-2"></i> ¡Copiado!
+                    <!-- Total a cobrar -->
+                    <div class="bg-ryr p-8 rounded-3xl text-center shadow-[0_15px_30px_rgba(220,38,38,0.3)] my-8 relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <span class="text-red-100 text-[10px] font-black uppercase tracking-[0.3em] block mb-2">Total a Percibir</span>
+                        <span class="text-5xl font-black text-white block tracking-tighter font-headline">
+                            <span class="text-xl align-top mr-1 opacity-60">$</span>{{ formatMoney(totalCharge) }}
                         </span>
                     </div>
                 </div>
 
+                <!-- Coeficiente -->
+                <div v-if="totalCharge > 0 && totalAmount > 0" class="mb-8">
+                    <div @click="copyCoefficient"
+                         class="bg-amber-400 p-6 rounded-[1.5rem] shadow-lg text-center transform transition hover:scale-[1.02] cursor-pointer relative overflow-hidden border-2 border-white/30">
+                        <div class="absolute -right-4 -bottom-4 text-amber-500/20 text-7xl rotate-12">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <span class="text-amber-900 text-[10px] font-black uppercase tracking-[0.3em] block mb-2">Coeficiente Final</span>
+                        <div class="text-5xl font-black text-amber-950 tracking-tighter font-mono">{{ finalCoefficient }}</div>
+                        <span v-if="showCopied"
+                              class="absolute inset-0 bg-emerald-600 text-white font-black flex items-center justify-center rounded-[1.5rem] copied-anim z-10">
+                            <i class="fa-solid fa-clipboard-check mr-2 text-xl"></i> ¡COPIADO!
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Financiar resto -->
                 <button v-if="remainingAmount > 1" @click="addRemainingPayment"
-                        class="w-full py-4 bg-ryr text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition transform active:scale-95 flex justify-center items-center gap-2 uppercase tracking-wide text-xs font-black">
-                    <i class="fa-solid fa-arrow-down"></i> Financiar Resto
+                        class="w-full py-5 glass-button-primary text-white font-black rounded-2xl shadow-xl transition transform active:scale-95 flex justify-center items-center gap-3 uppercase tracking-widest text-[10px] cursor-pointer">
+                    <i class="fa-solid fa-plus-circle text-lg"></i> Financiar Remanente
                 </button>
             </div>
-        </div>
-    </div>
-</div>
+            <p class="text-center mt-6 text-[10px] font-bold text-slate-300 uppercase tracking-[0.5em]">RYR COMPUTACIÓN © 2024</p>
+        </div><!-- /col-span-4 -->
+
+    </div><!-- /grid -->
+</div><!-- /#app -->
 
 <script>
     const { createApp } = Vue
@@ -439,7 +543,7 @@
                 showCopied: false,
 
                 /* --- Config panel --- */
-                showConfigModal:    false,
+                showConfigModal:     false,
                 configAuthenticated: false,
                 configPasswordInput: '',
                 configPasswordError: false,
@@ -451,7 +555,7 @@
             const loader = document.getElementById('loading-msg');
             if (loader) {
                 loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
+                setTimeout(() => loader.style.display = 'none', 700);
             }
         },
         computed: {
@@ -478,7 +582,6 @@
                     const saved = localStorage.getItem(LS_KEY);
                     if (saved) {
                         const parsed = JSON.parse(saved);
-                        // Validar que tenga la misma cantidad de planes (guard de versión)
                         if (parsed.length === DEFAULT_PLANS.length) return parsed;
                     }
                 } catch(e) {}
@@ -531,13 +634,10 @@
                     : parseFloat((1 / (1 - c / 100)).toFixed(4));
             },
             saveConfig() {
-                // Actualizar plans principal desde editablePlans
                 this.editablePlans.forEach((ep, i) => {
                     this.plans[i].coefficient = ep.coefficient;
                 });
                 this.savePlansToStorage();
-
-                // Feedback visual
                 this.configSaved = true;
                 setTimeout(() => {
                     this.configSaved = false;
@@ -552,35 +652,35 @@
             },
             formatOptionLabel(p) {
                 const percentValue = ((p.coefficient - 1) * 100).toFixed(2) + '%';
-                const paddingLength = 32 - p.name.length;
+                const paddingLength = 28 - p.name.length;
                 const padding = paddingLength > 0 ? '.'.repeat(paddingLength) : ' ';
                 return `${p.name} ${padding} ${percentValue}`;
             },
             getTeamBorderClass(idx) {
-                if (idx === -1) return 'border-slate-200';
-                if (idx === 'efectivo') return 'border-red-500';
+                if (idx === -1) return 'border-l-slate-200';
+                if (idx === 'efectivo') return 'border-l-ryr';
                 const team = this.plans[idx].team;
-                if (team === 'Fiserv')   return 'border-orange-500';
-                if (team === 'MP Point') return 'border-yellow-400';
-                if (team === 'Unicobros') return 'border-purple-600';
-                return 'border-slate-200';
+                if (team === 'Fiserv')    return 'border-l-orange-500';
+                if (team === 'MP Point')  return 'border-l-amber-400';
+                if (team === 'Unicobros') return 'border-l-purple-600';
+                return 'border-l-slate-200';
             },
             getTeamTextClass(idx) {
                 if (idx === -1) return '';
-                if (idx === 'efectivo') return 'text-red-600';
+                if (idx === 'efectivo') return 'text-ryr';
                 const team = this.plans[idx].team;
-                if (team === 'Fiserv')   return 'text-orange-600';
-                if (team === 'MP Point') return 'text-yellow-600';
+                if (team === 'Fiserv')    return 'text-orange-600';
+                if (team === 'MP Point')  return 'text-amber-600';
                 if (team === 'Unicobros') return 'text-purple-600';
                 return '';
             },
             getTeamBadgeClass(idx) {
                 if (idx === -1) return '';
-                if (idx === 'efectivo') return 'bg-red-50 border-red-100 text-red-700';
+                if (idx === 'efectivo') return 'bg-red-50/50 border-red-100 text-red-700';
                 const team = this.plans[idx].team;
-                if (team === 'Fiserv')   return 'bg-orange-50 border-orange-100 text-orange-700';
-                if (team === 'MP Point') return 'bg-yellow-50 border-yellow-100 text-yellow-700';
-                if (team === 'Unicobros') return 'bg-purple-50 border-purple-100 text-purple-700';
+                if (team === 'Fiserv')    return 'bg-orange-50/50 border-orange-100 text-orange-700';
+                if (team === 'MP Point')  return 'bg-amber-50/50 border-amber-100 text-amber-700';
+                if (team === 'Unicobros') return 'bg-purple-50/50 border-purple-100 text-purple-700';
                 return '';
             },
 
