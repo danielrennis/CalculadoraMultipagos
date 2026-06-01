@@ -28,10 +28,29 @@
             background-color: #fef2f2;
         }
 
-        .copied-anim { animation: bounce 0.5s; }
-        @keyframes bounce {
+        .copied-anim { animation: copiedBounce 0.5s; }
+        @keyframes copiedBounce {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
+        }
+
+        .modal-enter { animation: modalIn 0.25s ease; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .gear-spin:hover { animation: gearRotate 0.6s ease; }
+        @keyframes gearRotate {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(90deg); }
+        }
+
+        .save-flash { animation: saveFlash 0.4s ease; }
+        @keyframes saveFlash {
+            0%   { background-color: #004a99; }
+            50%  { background-color: #16a34a; }
+            100% { background-color: #004a99; }
         }
     </style>
 </head>
@@ -46,24 +65,190 @@
 
 <div id="app" v-cloak class="min-h-screen p-4 md:p-8 max-w-6xl mx-auto">
 
+    <!-- ===== HEADER ===== -->
     <header class="flex justify-between items-center mb-8 bg-white p-5 rounded-xl shadow-sm border-l-8 border-ryr">
         <div>
             <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight uppercase">Sistema Multipagos</h1>
             <p class="text-ryr font-bold text-lg uppercase tracking-widest">RyR Computación</p>
         </div>
-        <div class="text-right hidden md:block">
-            <p class="text-xs text-slate-400 font-mono">v4.9.1 Stable</p>
-            <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Admin: Daniel</p>
+        <div class="flex items-center gap-3">
+            <div class="text-right hidden md:block">
+                <p class="text-xs text-slate-400 font-mono">v5.0.0 Stable</p>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Admin: Daniel</p>
+            </div>
+            <button @click="openConfig"
+                    class="gear-spin w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition cursor-pointer"
+                    title="Configurar Planes">
+                <i class="fa-solid fa-gear"></i>
+            </button>
         </div>
     </header>
 
+    <!-- ===== MODAL CONFIGURACIÓN ===== -->
+    <div v-if="showConfigModal"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         style="background: rgba(15,23,42,0.65); backdrop-filter: blur(6px);">
+
+        <!-- PANTALLA DE CONTRASEÑA -->
+        <div v-if="!configAuthenticated" class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm modal-enter">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-ryr/10">
+                    <i class="fa-solid fa-lock text-2xl text-ryr"></i>
+                </div>
+                <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">Configuración</h2>
+                <p class="text-sm text-slate-400 mt-1">Contraseña de administrador</p>
+            </div>
+            <input id="config-pass-input"
+                   type="password"
+                   v-model="configPasswordInput"
+                   @keyup.enter="submitPassword"
+                   class="w-full px-4 py-3 border-2 rounded-xl outline-none text-center text-xl font-bold tracking-[0.4em] transition"
+                   :class="configPasswordError ? 'border-red-400 bg-red-50 text-red-600' : 'border-slate-200 focus:border-ryr'"
+                   placeholder="••••••••">
+            <p v-if="configPasswordError" class="text-red-500 text-xs text-center mt-2 font-bold">
+                <i class="fa-solid fa-circle-exclamation mr-1"></i>Contraseña incorrecta
+            </p>
+            <div class="flex gap-3 mt-5">
+                <button @click="closeConfig"
+                        class="flex-1 py-3 rounded-xl border-2 border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition cursor-pointer text-sm">
+                    Cancelar
+                </button>
+                <button @click="submitPassword"
+                        class="flex-1 py-3 rounded-xl bg-ryr text-white font-bold hover:opacity-90 transition cursor-pointer text-sm">
+                    Entrar
+                </button>
+            </div>
+        </div>
+
+        <!-- PANEL DE PLANES -->
+        <div v-else class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl modal-enter flex flex-col" style="max-height: 90vh;">
+
+            <!-- Header del panel -->
+            <div class="flex justify-between items-start p-6 border-b border-slate-100 shrink-0">
+                <div>
+                    <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-ryr text-base"></i>
+                        Configurar Planes
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">
+                        Ingresá el <strong>% que te debita</strong> cada terminal. El coeficiente se calcula solo.
+                    </p>
+                </div>
+                <button @click="closeConfig"
+                        class="w-8 h-8 rounded-full bg-slate-100 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition cursor-pointer shrink-0 ml-4">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Cuerpo scrolleable -->
+            <div class="overflow-y-auto flex-1 p-4 space-y-4">
+
+                <!-- Cabecera de columnas -->
+                <div class="grid grid-cols-12 gap-2 px-3">
+                    <span class="col-span-5 text-[10px] font-black uppercase tracking-wider text-slate-400">Plan</span>
+                    <span class="col-span-3 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">% Costo</span>
+                    <span class="col-span-4 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Coeficiente</span>
+                </div>
+
+                <!-- UNICOBROS -->
+                <div>
+                    <div class="flex items-center gap-2 px-3 py-1.5 mb-1 bg-purple-50 rounded-lg">
+                        <div class="w-2 h-2 rounded-full bg-purple-600"></div>
+                        <span class="text-xs font-black uppercase tracking-widest text-purple-700">Unicobros</span>
+                    </div>
+                    <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'Unicobros')" :key="'u'+i"
+                         class="grid grid-cols-12 gap-2 items-center px-3 py-2 rounded-lg hover:bg-slate-50 transition group">
+                        <span class="col-span-5 text-xs font-semibold text-slate-600 leading-tight">{{ plan.name }}</span>
+                        <div class="col-span-3 relative">
+                            <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
+                                   step="0.01" min="0" max="99"
+                                   class="w-full text-center pr-5 pl-2 py-1.5 border-2 border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-purple-500 transition bg-white">
+                            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">%</span>
+                        </div>
+                        <div class="col-span-4 text-right">
+                            <span class="font-black font-mono text-sm transition"
+                                  :class="plan.costPercent == 0 ? 'text-slate-300' : 'text-purple-700'">
+                                {{ plan.coefficient.toFixed(4) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MP POINT -->
+                <div>
+                    <div class="flex items-center gap-2 px-3 py-1.5 mb-1 bg-yellow-50 rounded-lg">
+                        <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        <span class="text-xs font-black uppercase tracking-widest text-yellow-700">MP Point</span>
+                    </div>
+                    <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'MP Point')" :key="'m'+i"
+                         class="grid grid-cols-12 gap-2 items-center px-3 py-2 rounded-lg hover:bg-slate-50 transition">
+                        <span class="col-span-5 text-xs font-semibold text-slate-600 leading-tight">{{ plan.name }}</span>
+                        <div class="col-span-3 relative">
+                            <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
+                                   step="0.01" min="0" max="99"
+                                   class="w-full text-center pr-5 pl-2 py-1.5 border-2 border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-yellow-500 transition bg-white">
+                            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">%</span>
+                        </div>
+                        <div class="col-span-4 text-right">
+                            <span class="font-black font-mono text-sm"
+                                  :class="plan.costPercent == 0 ? 'text-slate-300' : 'text-yellow-600'">
+                                {{ plan.coefficient.toFixed(4) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FISERV -->
+                <div>
+                    <div class="flex items-center gap-2 px-3 py-1.5 mb-1 bg-orange-50 rounded-lg">
+                        <div class="w-2 h-2 rounded-full bg-orange-500"></div>
+                        <span class="text-xs font-black uppercase tracking-widest text-orange-700">Fiserv</span>
+                    </div>
+                    <div v-for="(plan, i) in editablePlans.filter(p => p.team === 'Fiserv')" :key="'f'+i"
+                         class="grid grid-cols-12 gap-2 items-center px-3 py-2 rounded-lg hover:bg-slate-50 transition">
+                        <span class="col-span-5 text-xs font-semibold text-slate-600 leading-tight">{{ plan.name }}</span>
+                        <div class="col-span-3 relative">
+                            <input type="number" v-model.number="plan.costPercent" @input="onCostChange(plan)"
+                                   step="0.01" min="0" max="99"
+                                   class="w-full text-center pr-5 pl-2 py-1.5 border-2 border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-orange-500 transition bg-white">
+                            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">%</span>
+                        </div>
+                        <div class="col-span-4 text-right">
+                            <span class="font-black font-mono text-sm"
+                                  :class="plan.costPercent == 0 ? 'text-slate-300' : 'text-orange-600'">
+                                {{ plan.coefficient.toFixed(4) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer del panel -->
+            <div class="p-4 border-t border-slate-100 flex gap-3 shrink-0">
+                <button @click="closeConfig"
+                        class="flex-1 py-3 rounded-xl border-2 border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition cursor-pointer text-sm">
+                    Cancelar
+                </button>
+                <button @click="saveConfig" :id="'save-config-btn'"
+                        class="flex-1 py-3 rounded-xl bg-ryr text-white font-bold hover:opacity-90 transition cursor-pointer text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    {{ configSaved ? '¡Guardado!' : 'Guardar Cambios' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== GRID PRINCIPAL ===== -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-8 space-y-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <label class="block text-sm font-bold text-slate-500 mb-1 uppercase tracking-wide">Monto de Lista (Precio Público)</label>
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-2xl font-light">$</span>
-                    <input v-model.number="totalAmount" type="number" class="w-full pl-10 pr-4 py-4 text-4xl font-bold text-slate-800 border-2 border-slate-200 rounded-xl focus:border-ryr focus:ring-0 outline-none transition placeholder-slate-200" placeholder="0.00">
+                    <input v-model.number="totalAmount" type="number"
+                           class="w-full pl-10 pr-4 py-4 text-4xl font-bold text-slate-800 border-2 border-slate-200 rounded-xl focus:border-ryr focus:ring-0 outline-none transition placeholder-slate-200"
+                           placeholder="0.00">
                 </div>
             </div>
 
@@ -72,25 +257,23 @@
                     <h3 class="font-bold text-slate-700 flex items-center gap-2 uppercase text-xs tracking-widest font-black">
                         <i class="fa-regular fa-credit-card"></i> Desglose de Pagos
                     </h3>
-                    <button @click="addPaymentRow" :disabled="remainingAmount <= 0.1" 
+                    <button @click="addPaymentRow" :disabled="remainingAmount <= 0.1"
                             class="text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm uppercase tracking-widest bg-ryr text-white hover:opacity-90 disabled:bg-slate-100 disabled:text-slate-400 cursor-pointer">
                         <i class="fa-solid fa-plus"></i> Agregar Medio
                     </button>
                 </div>
 
                 <div class="divide-y divide-slate-100">
-                    <div v-for="(pay, index) in payments" :key="index" 
+                    <div v-for="(pay, index) in payments" :key="index"
                          class="p-5 hover:bg-slate-50 transition relative group border-l-[10px]"
                          :class="getTeamBorderClass(pay.planIndex)">
-                        
+
                         <div class="flex flex-col md:flex-row gap-4 mb-4">
                             <div class="relative flex-1">
-                                <select v-model="pay.planIndex" @change="validateInput(index)" 
+                                <select v-model="pay.planIndex" @change="validateInput(index)"
                                         class="w-full appearance-none border border-slate-300 rounded-lg p-3 pr-8 text-sm bg-white focus:border-ryr outline-none cursor-pointer font-bold text-slate-700 font-mono">
                                     <option :value="-1" disabled>Seleccionar Medio de Pago...</option>
-                                    
                                     <option value="efectivo" class="opt-efectivo">EFECTIVO (0%)</option>
-
                                     <optgroup label="UNICOBROS">
                                         <option v-for="p in getPlansByTeam('Unicobros')" :value="p.originalIndex">
                                             {{ formatOptionLabel(p) }}
@@ -121,7 +304,8 @@
                                     </label>
                                     <div class="flex items-center gap-2 cursor-pointer select-none" @click="toggleLimitMode(index)">
                                         <div class="w-8 h-4 bg-slate-200 rounded-full relative transition-colors" :class="{'bg-ryr/20': pay.isLimitMode}">
-                                            <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 absolute top-0" :class="{'translate-x-4 bg-ryr': pay.isLimitMode, 'bg-slate-400': !pay.isLimitMode}"></div>
+                                            <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 absolute top-0"
+                                                 :class="{'translate-x-4 bg-ryr': pay.isLimitMode, 'bg-slate-400': !pay.isLimitMode}"></div>
                                         </div>
                                         <span class="text-[10px] uppercase font-bold" :class="pay.isLimitMode ? 'text-ryr' : 'text-slate-400'">Es Límite</span>
                                     </div>
@@ -144,8 +328,9 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <button @click="removePayment(index)" class="text-slate-300 hover:text-red-500 w-8 h-8 rounded-full hover:bg-red-50 transition items-center justify-center mb-1 cursor-pointer">
+
+                            <button @click="removePayment(index)"
+                                    class="text-slate-300 hover:text-red-500 w-8 h-8 rounded-full hover:bg-red-50 transition items-center justify-center mb-1 cursor-pointer">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -154,6 +339,7 @@
             </div>
         </div>
 
+        <!-- SIDEBAR -->
         <div class="lg:col-span-4">
             <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-100 sticky top-4">
                 <h3 class="text-lg font-black text-slate-800 mb-6 pb-2 border-b border-slate-100 uppercase tracking-tighter">Resumen RyR</h3>
@@ -166,7 +352,7 @@
                         </span>
                     </div>
                     <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                        <div class="h-full transition-all duration-500" 
+                        <div class="h-full transition-all duration-500"
                              :class="remainingAmount > 0.1 ? 'bg-orange-400' : 'bg-green-500'"
                              :style="{ width: Math.min((totalCovered / (totalAmount || 1)) * 100, 100) + '%' }"></div>
                     </div>
@@ -181,7 +367,7 @@
                         <span class="font-sans font-bold uppercase text-[10px]">Cubierto:</span>
                         <span>${{ formatMoney(totalCovered) }}</span>
                     </div>
-                    
+
                     <div class="bg-ryr p-4 rounded-xl text-center shadow-lg my-6">
                         <span class="text-blue-100 text-[10px] font-bold uppercase tracking-widest block mb-1">Total a Cobrar Cliente</span>
                         <span class="text-3xl font-black text-white block tracking-tight">
@@ -191,7 +377,7 @@
                 </div>
 
                 <div v-if="totalCharge > 0 && totalAmount > 0" class="mb-6">
-                    <div class="bg-yellow-400 p-4 rounded-xl shadow-md text-center transform transition hover:scale-105 cursor-pointer relative" 
+                    <div class="bg-yellow-400 p-4 rounded-xl shadow-md text-center transform transition hover:scale-105 cursor-pointer relative"
                          @click="copyCoefficient">
                         <span class="text-yellow-900 text-[10px] font-black uppercase tracking-widest block mb-1">COEFICIENTE SISTEMA</span>
                         <div class="text-4xl font-black text-yellow-900 tracking-tighter font-mono">{{ finalCoefficient }}</div>
@@ -201,7 +387,8 @@
                     </div>
                 </div>
 
-                <button v-if="remainingAmount > 1" @click="addRemainingPayment" class="w-full py-4 bg-ryr text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition transform active:scale-95 flex justify-center items-center gap-2 uppercase tracking-wide text-xs font-black">
+                <button v-if="remainingAmount > 1" @click="addRemainingPayment"
+                        class="w-full py-4 bg-ryr text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition transform active:scale-95 flex justify-center items-center gap-2 uppercase tracking-wide text-xs font-black">
                     <i class="fa-solid fa-arrow-down"></i> Financiar Resto
                 </button>
             </div>
@@ -212,45 +399,57 @@
 <script>
     const { createApp } = Vue
 
+    const DEFAULT_PLANS = [
+        /* --- UNICOBROS --- */
+        { team: 'Unicobros', name: 'Mi Pyme - 3 Cuotas',      coefficient: 1.1355, color: 'purple' },
+        { team: 'Unicobros', name: 'Mi Pyme - 6 Cuotas',      coefficient: 1.2461, color: 'purple' },
+        { team: 'Unicobros', name: 'Visa/Master - 9 Cuotas',  coefficient: 1.4785, color: 'purple' },
+        { team: 'Unicobros', name: 'Visa/Master - 12 Cuotas', coefficient: 1.6416, color: 'purple' },
+        { team: 'Unicobros', name: 'Tuya - 3 Cuotas',         coefficient: 1.0000, color: 'purple' },
+        { team: 'Unicobros', name: 'Tuya - 5 Cuotas',         coefficient: 1.1124, color: 'purple' },
+        { team: 'Unicobros', name: 'Tuya - 10 Cuotas',        coefficient: 1.2122, color: 'purple' },
+        { team: 'Unicobros', name: 'Naranja - 1 Pago',        coefficient: 1.0000, color: 'purple' },
+        { team: 'Unicobros', name: 'Naranja - Plan Z',         coefficient: 1.1755, color: 'purple' },
+
+        /* --- MP POINT --- */
+        { team: 'MP Point', name: 'Point - 2 Cuotas',  coefficient: 1.1346, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 3 Cuotas',  coefficient: 1.1666, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 6 Cuotas',  coefficient: 1.2462, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 9 Cuotas',  coefficient: 1.3475, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.4593, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 18 Cuotas', coefficient: 1.6292, color: 'yellow' },
+
+        /* --- FISERV --- */
+        { team: 'Fiserv', name: 'Visa/Master - 2 Cuotas', coefficient: 1.1300, color: 'orange' },
+        { team: 'Fiserv', name: 'Visa/Master - 3 Cuotas', coefficient: 1.1600, color: 'orange' },
+        { team: 'Fiserv', name: 'Visa/Master - 6 Cuotas', coefficient: 1.2800, color: 'orange' },
+        { team: 'Fiserv', name: 'Naranja - Plan Z',        coefficient: 1.0805, color: 'orange' },
+        { team: 'Fiserv', name: 'Naranja - 5 Cuotas',     coefficient: 1.1377, color: 'orange' },
+        { team: 'Fiserv', name: 'Naranja - 6 Cuotas',     coefficient: 1.1481, color: 'orange' }
+    ];
+
+    const LS_KEY = 'ryr_plans_v1';
+
     createApp({
         data() {
             return {
                 totalAmount: null,
-                plans: [
-                    /* --- UNICOBROS --- */
-                    { team: 'Unicobros', name: 'Mi Pyme - 3 Cuotas', coefficient: 1.1355, color: 'purple' },
-                    { team: 'Unicobros', name: 'Mi Pyme - 6 Cuotas', coefficient: 1.2461, color: 'purple' },
-                    { team: 'Unicobros', name: 'Visa/Master - 9 Cuotas', coefficient: 1.4785, color: 'purple' },
-                    { team: 'Unicobros', name: 'Visa/Master - 12 Cuotas', coefficient: 1.6416, color: 'purple' },
-                    { team: 'Unicobros', name: 'Tuya - 3 Cuotas', coefficient: 1.0000, color: 'purple' },
-                    { team: 'Unicobros', name: 'Tuya - 5 Cuotas', coefficient: 1.1124, color: 'purple' },
-                    { team: 'Unicobros', name: 'Tuya - 10 Cuotas', coefficient: 1.2122, color: 'purple' },
-                    { team: 'Unicobros', name: 'Naranja - 1 Pago', coefficient: 1.0000, color: 'purple' },
-                    { team: 'Unicobros', name: 'Naranja - Plan Z', coefficient: 1.1755, color: 'purple' },
-
-                    /* --- MP POINT --- */
-                    { team: 'MP Point', name: 'Point - 2 Cuotas', coefficient: 1.1346, color: 'yellow' },
-                    { team: 'MP Point', name: 'Point - 3 Cuotas', coefficient: 1.1666, color: 'yellow' },
-                    { team: 'MP Point', name: 'Point - 6 Cuotas', coefficient: 1.2462, color: 'yellow' },
-                    { team: 'MP Point', name: 'Point - 9 Cuotas', coefficient: 1.3475, color: 'yellow' },
-                    { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.4593, color: 'yellow' },
-                    { team: 'MP Point', name: 'Point - 18 Cuotas', coefficient: 1.6292, color: 'yellow' },
-
-                    /* --- FISERV --- */
-                    { team: 'Fiserv', name: 'Visa/Master - 2 Cuotas', coefficient: 1.13, color: 'orange' },
-                    { team: 'Fiserv', name: 'Visa/Master - 3 Cuotas', coefficient: 1.16, color: 'orange' },
-                    { team: 'Fiserv', name: 'Visa/Master - 6 Cuotas', coefficient: 1.28, color: 'orange' },
-                    { team: 'Fiserv', name: 'Naranja - Plan Z', coefficient: 1.0805, color: 'orange' },
-                    { team: 'Fiserv', name: 'Naranja - 5 Cuotas', coefficient: 1.1377, color: 'orange' },
-                    { team: 'Fiserv', name: 'Naranja - 6 Cuotas', coefficient: 1.1481, color: 'orange' }
-                ],
+                plans: this.loadPlans(),
                 payments: [],
-                showCopied: false
+                showCopied: false,
+
+                /* --- Config panel --- */
+                showConfigModal:    false,
+                configAuthenticated: false,
+                configPasswordInput: '',
+                configPasswordError: false,
+                configSaved:         false,
+                editablePlans:       []
             }
         },
         mounted() {
             const loader = document.getElementById('loading-msg');
-            if(loader) {
+            if (loader) {
                 loader.style.opacity = '0';
                 setTimeout(() => loader.style.display = 'none', 500);
             }
@@ -263,8 +462,8 @@
                 return this.payments.reduce((acc, pay) => acc + this.calculateRow(pay).charge, 0);
             },
             remainingAmount() {
-                let total = this.totalAmount || 0;
-                let covered = this.totalCovered;
+                const total = this.totalAmount || 0;
+                const covered = this.totalCovered;
                 return (total - covered) > 0.01 ? (total - covered) : 0;
             },
             finalCoefficient() {
@@ -273,8 +472,82 @@
             }
         },
         methods: {
+            /* -------- Persistencia -------- */
+            loadPlans() {
+                try {
+                    const saved = localStorage.getItem(LS_KEY);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        // Validar que tenga la misma cantidad de planes (guard de versión)
+                        if (parsed.length === DEFAULT_PLANS.length) return parsed;
+                    }
+                } catch(e) {}
+                return DEFAULT_PLANS.map(p => ({ ...p }));
+            },
+            savePlansToStorage() {
+                localStorage.setItem(LS_KEY, JSON.stringify(this.plans));
+            },
+
+            /* -------- Config modal -------- */
+            openConfig() {
+                this.configPasswordInput = '';
+                this.configPasswordError = false;
+                this.configAuthenticated = false;
+                this.configSaved = false;
+                this.showConfigModal = true;
+                this.$nextTick(() => {
+                    const el = document.getElementById('config-pass-input');
+                    if (el) el.focus();
+                });
+            },
+            closeConfig() {
+                this.showConfigModal = false;
+                this.configAuthenticated = false;
+                this.configPasswordInput = '';
+            },
+            submitPassword() {
+                if (this.configPasswordInput === 'Da89c261') {
+                    this.configPasswordError = false;
+                    this.configAuthenticated = true;
+                    this.initEditablePlans();
+                } else {
+                    this.configPasswordError = true;
+                    this.configPasswordInput = '';
+                }
+            },
+            initEditablePlans() {
+                this.editablePlans = this.plans.map(p => ({
+                    ...p,
+                    costPercent: p.coefficient === 1
+                        ? 0
+                        : parseFloat(((1 - 1 / p.coefficient) * 100).toFixed(2))
+                }));
+            },
+            onCostChange(plan) {
+                const c = parseFloat(plan.costPercent);
+                if (isNaN(c) || c < 0 || c >= 100) return;
+                plan.coefficient = c === 0
+                    ? 1.0000
+                    : parseFloat((1 / (1 - c / 100)).toFixed(4));
+            },
+            saveConfig() {
+                // Actualizar plans principal desde editablePlans
+                this.editablePlans.forEach((ep, i) => {
+                    this.plans[i].coefficient = ep.coefficient;
+                });
+                this.savePlansToStorage();
+
+                // Feedback visual
+                this.configSaved = true;
+                setTimeout(() => {
+                    this.configSaved = false;
+                    this.closeConfig();
+                }, 1200);
+            },
+
+            /* -------- Helpers de estilos -------- */
             getPlansByTeam(teamName) {
-                return this.plans.map((p, i) => ({...p, originalIndex: i}))
+                return this.plans.map((p, i) => ({ ...p, originalIndex: i }))
                                  .filter(p => p.team.includes(teamName));
             },
             formatOptionLabel(p) {
@@ -287,7 +560,7 @@
                 if (idx === -1) return 'border-slate-200';
                 if (idx === 'efectivo') return 'border-red-500';
                 const team = this.plans[idx].team;
-                if (team === 'Fiserv') return 'border-orange-500';
+                if (team === 'Fiserv')   return 'border-orange-500';
                 if (team === 'MP Point') return 'border-yellow-400';
                 if (team === 'Unicobros') return 'border-purple-600';
                 return 'border-slate-200';
@@ -296,7 +569,7 @@
                 if (idx === -1) return '';
                 if (idx === 'efectivo') return 'text-red-600';
                 const team = this.plans[idx].team;
-                if (team === 'Fiserv') return 'text-orange-600';
+                if (team === 'Fiserv')   return 'text-orange-600';
                 if (team === 'MP Point') return 'text-yellow-600';
                 if (team === 'Unicobros') return 'text-purple-600';
                 return '';
@@ -305,15 +578,16 @@
                 if (idx === -1) return '';
                 if (idx === 'efectivo') return 'bg-red-50 border-red-100 text-red-700';
                 const team = this.plans[idx].team;
-                if (team === 'Fiserv') return 'bg-orange-50 border-orange-100 text-orange-700';
+                if (team === 'Fiserv')   return 'bg-orange-50 border-orange-100 text-orange-700';
                 if (team === 'MP Point') return 'bg-yellow-50 border-yellow-100 text-yellow-700';
                 if (team === 'Unicobros') return 'bg-purple-50 border-purple-100 text-purple-700';
                 return '';
             },
+
+            /* -------- Pagos -------- */
             addPaymentRow() {
-                if (this.remainingAmount > 0.1) {
+                if (this.remainingAmount > 0.1)
                     this.payments.push({ planIndex: -1, amount: null, isLimitMode: false });
-                }
             },
             addRemainingPayment() {
                 if (this.remainingAmount > 0.1) {
@@ -333,10 +607,12 @@
                 const pay = this.payments[index];
                 if (!pay.amount) return;
                 let otherPrincipal = 0;
-                this.payments.forEach((p, i) => { if (i !== index) otherPrincipal += this.calculateRow(p).principal; });
+                this.payments.forEach((p, i) => {
+                    if (i !== index) otherPrincipal += this.calculateRow(p).principal;
+                });
                 const maxAvailable = (this.totalAmount || 0) - otherPrincipal;
                 if (maxAvailable < 0) { pay.amount = 0; return; }
-                
+
                 let coeff = 1;
                 if (pay.planIndex === 'efectivo') {
                     coeff = 1;
@@ -345,24 +621,22 @@
                 }
 
                 if (pay.isLimitMode) {
-                    if ((pay.amount / coeff) > maxAvailable + 0.01) {
+                    if ((pay.amount / coeff) > maxAvailable + 0.01)
                         pay.amount = parseFloat((maxAvailable * coeff).toFixed(2));
-                    }
                 } else {
-                    if (pay.amount > maxAvailable + 0.01) {
+                    if (pay.amount > maxAvailable + 0.01)
                         pay.amount = parseFloat(maxAvailable.toFixed(2));
-                    }
                 }
             },
             calculateRow(pay) {
                 if (pay.planIndex === -1 || !pay.amount) return { charge: 0, principal: 0 };
                 const coeff = pay.planIndex === 'efectivo' ? 1 : this.plans[pay.planIndex].coefficient;
-                return pay.isLimitMode ? 
-                    { charge: pay.amount, principal: pay.amount / coeff } : 
-                    { principal: pay.amount, charge: pay.amount * coeff };
+                return pay.isLimitMode
+                    ? { charge: pay.amount, principal: pay.amount / coeff }
+                    : { principal: pay.amount, charge: pay.amount * coeff };
             },
             formatMoney(v) {
-                if(!v && v !== 0) return '0,00';
+                if (!v && v !== 0) return '0,00';
                 return v.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             },
             copyCoefficient() {
