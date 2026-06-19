@@ -519,8 +519,8 @@
                         <div class="absolute -right-4 -bottom-4 text-amber-500/20 text-7xl rotate-12">
                             <i class="fa-solid fa-calculator"></i>
                         </div>
-                        <span class="text-amber-900 text-[10px] font-black uppercase tracking-[0.3em] block mb-2">Coeficiente Final</span>
-                        <div class="text-5xl font-black text-amber-950 tracking-tighter font-mono">{{ finalCoefficient }}</div>
+                        <span class="text-amber-900 text-[10px] font-black uppercase tracking-[0.3em] block mb-2">% a Aplicar</span>
+                        <div class="text-5xl font-black text-amber-950 tracking-tighter font-mono">{{ finalCoefficient }}<span class="text-2xl opacity-60">%</span></div>
                         <span v-if="showCopied"
                               class="absolute inset-0 bg-emerald-600 text-white font-black flex items-center justify-center rounded-[1.5rem] copied-anim z-10">
                             <i class="fa-solid fa-clipboard-check mr-2 text-xl"></i> ¡COPIADO!
@@ -616,8 +616,8 @@
                 return (total - covered) > 0.01 ? (total - covered) : 0;
             },
             finalCoefficient() {
-                if (!this.totalAmount || this.totalAmount === 0) return '0.0000';
-                return (this.totalCharge / this.totalAmount).toFixed(4);
+                if (!this.totalAmount || this.totalAmount === 0) return '0.00';
+                return ((this.totalCharge / this.totalAmount - 1) * 100).toFixed(2);
             }
         },
         methods: {
