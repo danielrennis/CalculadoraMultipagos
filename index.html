@@ -144,11 +144,12 @@
         <div>
             <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight uppercase leading-none font-headline">Sistema Multipagos</h1>
             <p class="text-ryr font-bold text-sm uppercase tracking-[0.2em] mt-1">RyR Computación</p>
+            <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mt-2 bg-white/50 inline-block px-3 py-1 rounded-full border border-slate-200">Aranceles hasta fin de JULIO</p>
         </div>
         <div class="flex items-center gap-4">
             <div class="text-right hidden md:block">
-                <p class="text-[10px] text-slate-400 font-mono tracking-wider">SECURE-V5-STABLE</p>
-                <p class="text-xs text-slate-600 font-bold uppercase">Admin: Daniel</p>
+                <p class="text-[10px] text-ryr font-bold font-mono tracking-wider bg-ryr/10 px-2 py-0.5 rounded-lg">V5.7 - ACT. JULIO</p>
+                <p class="text-xs text-slate-600 font-bold uppercase mt-1">Admin: Daniel</p>
             </div>
             <button @click="openConfig"
                     class="gear-spin w-12 h-12 rounded-xl glass-button-secondary flex items-center justify-center text-slate-600 hover:text-ryr transition shadow-sm cursor-pointer"
@@ -449,8 +450,11 @@
                                     <p :class="getTeamTextClass(pay.planIndex)" class="text-3xl font-black leading-none font-headline">
                                         <span class="text-sm align-top mr-1 opacity-50">$</span>{{ formatMoney(calculateRow(pay).charge) }}
                                     </p>
+                                    <div v-if="getInstallmentsCount(pay.planIndex) > 1" class="mt-1 text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                        {{ getInstallmentsCount(pay.planIndex) }} cuotas de ${{ formatMoney(getInstallmentAmount(pay)) }}
+                                    </div>
                                     <div :class="getTeamBadgeClass(pay.planIndex)"
-                                         class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black border tracking-wider">
+                                         class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black border tracking-wider">
                                         <i class="fa-solid fa-check-circle"></i>
                                         CUBRE: ${{ formatMoney(calculateRow(pay).principal) }}
                                     </div>
@@ -555,12 +559,12 @@
         { team: 'Unicobros', name: 'Naranja - Plan Z',         coefficient: 1.1755, color: 'purple' },
 
         /* --- MP POINT --- */
-        { team: 'MP Point', name: 'Point - 2 Cuotas',  coefficient: 1.1346, color: 'yellow' },
-        { team: 'MP Point', name: 'Point - 3 Cuotas',  coefficient: 1.1666, color: 'yellow' },
-        { team: 'MP Point', name: 'Point - 6 Cuotas',  coefficient: 1.2462, color: 'yellow' },
-        { team: 'MP Point', name: 'Point - 9 Cuotas',  coefficient: 1.3475, color: 'yellow' },
-        { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.4593, color: 'yellow' },
-        { team: 'MP Point', name: 'Point - 18 Cuotas', coefficient: 1.6292, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 2 Cuotas',  coefficient: 1.1198, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 3 Cuotas',  coefficient: 1.1468, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 6 Cuotas',  coefficient: 1.2136, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 9 Cuotas',  coefficient: 1.2987, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.3928, color: 'yellow' },
+        { team: 'MP Point', name: 'Point - 18 Cuotas', coefficient: 1.5361, color: 'yellow' },
 
         /* --- FISERV --- */
         { team: 'Fiserv', name: 'Visa/Master - 2 Cuotas', coefficient: 1.1300, color: 'orange' },
@@ -571,7 +575,7 @@
         { team: 'Fiserv', name: 'Naranja - 6 Cuotas',     coefficient: 1.1481, color: 'orange' }
     ];
 
-    const LS_KEY = 'ryr_plans_v1';
+    const LS_KEY = 'ryr_plans_v2';
 
     createApp({
         data() {
@@ -794,6 +798,19 @@
                 return pay.isLimitMode
                     ? { charge: pay.amount, principal: pay.amount / coeff }
                     : { principal: pay.amount, charge: pay.amount * coeff };
+            },
+            getInstallmentsCount(planIndex) {
+                if (planIndex === -1 || planIndex === 'efectivo') return 1;
+                const name = this.plans[planIndex].name;
+                const match = name.match(/(\d+)\s*(Cuota|Pago)/i);
+                if (match) return parseInt(match[1], 10);
+                if (name.includes('Plan Z')) return 3;
+                return 1;
+            },
+            getInstallmentAmount(pay) {
+                const charge = this.calculateRow(pay).charge;
+                const count = this.getInstallmentsCount(pay.planIndex);
+                return count > 0 ? charge / count : charge;
             },
             formatMoney(v) {
                 if (!v && v !== 0) return '0,00';
