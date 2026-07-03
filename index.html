@@ -300,7 +300,7 @@
                 <div class="absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10 pointer-events-none">
                     <i class="fa-solid fa-money-bill-transfer text-9xl"></i>
                 </div>
-                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-[0.3em]">Precio de Contado</label>
+                <label class="block text-xs font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">Precio de Contado</label>
                 <div class="relative">
                     <span class="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300 text-5xl font-light">$</span>
                     <input class="w-full pl-12 pr-4 py-4 text-6xl font-black text-slate-900 bg-transparent border-none focus:ring-0 outline-none placeholder-slate-200 font-headline"
@@ -424,7 +424,7 @@
                         <div class="flex items-center gap-8">
                             <div class="flex-1">
                                 <div class="flex justify-between items-center mb-3">
-                                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                    <label class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
                                         {{ pay.isLimitMode ? 'Monto Máximo POS' : 'Monto a Cubrir' }}
                                     </label>
                                     <div @click="toggleLimitMode(index)" class="flex items-center gap-3 cursor-pointer select-none">
@@ -434,7 +434,7 @@
                                                  class="w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 absolute top-0"></div>
                                         </div>
                                         <span :class="pay.isLimitMode ? 'text-ryr' : 'text-slate-400'"
-                                              class="text-[10px] uppercase font-black tracking-widest">Es Límite</span>
+                                              class="text-xs uppercase font-black tracking-widest">Es Límite</span>
                                     </div>
                                 </div>
                                 <div class="relative">
@@ -446,15 +446,15 @@
 
                             <div class="w-[35%] text-right border-l-2 border-white/30 pl-8">
                                 <div v-if="pay.planIndex !== -1">
-                                    <p class="text-[9px] text-slate-400 mb-1 uppercase font-black tracking-widest">Cobro Final:</p>
+                                    <p class="text-[11px] text-slate-400 mb-1 uppercase font-black tracking-widest">Cobro Final:</p>
                                     <p :class="getTeamTextClass(pay.planIndex)" class="text-3xl font-black leading-none font-headline">
                                         <span class="text-sm align-top mr-1 opacity-50">$</span>{{ formatMoney(calculateRow(pay).charge) }}
                                     </p>
-                                    <div v-if="getInstallmentsCount(pay.planIndex) > 1" class="mt-1 text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <div v-if="getInstallmentsCount(pay.planIndex) > 1" class="mt-2 text-sm font-black text-slate-700 uppercase tracking-wide">
                                         {{ getInstallmentsCount(pay.planIndex) }} cuotas de ${{ formatMoney(getInstallmentAmount(pay)) }}
                                     </div>
                                     <div :class="getTeamBadgeClass(pay.planIndex)"
-                                         class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black border tracking-wider">
+                                         class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black border tracking-wider">
                                         <i class="fa-solid fa-check-circle"></i>
                                         CUBRE: ${{ formatMoney(calculateRow(pay).principal) }}
                                     </div>
