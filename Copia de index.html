@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Multipagos RyR</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.prod.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        
+        [v-cloak] { display: none; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        body { 
+            background-color: #f4f7fa; 
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        .bg-ryr { background-color: #E30613; }
+        .text-ryr { color: #E30613; }
+        .border-ryr { border-color: #E30613; }
+        .shadow-ryr { box-shadow: 0 10px 25px -5px rgba(227, 6, 19, 0.2); }
+
+        .bento-card {
+            background-color: white;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bento-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .input-bento {
+            background-color: #f8fafc;
+            border: 2px solid transparent;
+            border-radius: 1.25rem;
+            padding: 0.75rem 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            transition: all 0.2s ease;
+            width: 100%;
+            outline: none;
+        }
+        .input-bento:focus {
+            background-color: white;
+            border-color: #E30613;
+            box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.05);
+        }
+
+        .select-bento {
+            background-color: #f8fafc;
+            border: 2px solid transparent;
+            border-radius: 1.25rem;
+            padding: 1rem 2.5rem 1rem 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            appearance: none;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .select-bento:focus {
+            background-color: white;
+            border-color: #E30613;
+        }
+
+        .badge-ryr {
+            background-color: rgba(227, 6, 19, 0.08);
+            color: #E30613;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .label-bento {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #94a3b8;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .copied-anim { animation: bounce 0.5s ease; }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo-box {
+            background: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        /* custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+        .font-tabular { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+<div id="loading-msg" class="fixed inset-0 flex flex-col items-center justify-center bg-[#f4f7fa] z-50 transition-opacity duration-500">
+    <div class="text-center">
+        <div class="animate-bounce mb-6">
+            <div class="logo-box mx-auto border-2 border-ryr">
+                <i class="fa-solid fa-calculator text-ryr text-3xl" aria-hidden="true"></i>
+            </div>
+        </div>
+        <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Iniciando RyR Multipagos…</h2>
+    </div>
+</div>
+
+<div id="app" v-cloak class="min-h-screen p-4 md:p-12 max-w-7xl mx-auto">
+
+    <!-- Header Bento -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+        <div class="flex items-center gap-5">
+            <div class="logo-box overflow-hidden">
+                <img src="logo.png" alt="RyR" width="70" height="70" class="w-full h-full object-contain p-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <div style="display:none" class="text-ryr font-black text-xl">RyR</div>
+            </div>
+            <div>
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight leading-none mb-1">
+                    Calculadora <span class="text-ryr">Multipagos</span>
+                </h1>
+                <p class="text-slate-400 text-sm font-semibold tracking-wide">Panel de Gestión Financiera Corporativa</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="bg-white px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block leading-tight">Estado</span>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span class="text-xs font-bold text-slate-700">v5.4.0 Estable</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <!-- Main Column -->
+        <div class="lg:col-span-8 space-y-10">
+            
+            <!-- Monto Card -->
+            <div class="bento-card relative overflow-hidden group !py-4">
+                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i class="fa-solid fa-money-bill-transfer text-7xl -rotate-12" aria-hidden="true"></i>
+                </div>
+                <span class="label-bento !mb-0 text-[10px]">Monto de Lista (Precio Público)</span>
+                <div class="relative flex items-center">
+                    <span class="absolute left-0 text-slate-200 text-4xl font-black select-none">$</span>
+                    <input v-model.number="totalAmount" type="number" autocomplete="off"
+                           class="w-full pl-9 pr-6 py-1 text-5xl font-black text-slate-900 bg-transparent border-none outline-none transition placeholder-slate-100 font-tabular" 
+                           placeholder="0,00…">
+                </div>
+            </div>
+
+            <!-- Payments Section -->
+            <div class="bento-card !p-0">
+                <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/40">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-ryr rounded-xl flex items-center justify-center text-white shadow-ryr">
+                            <i class="fa-solid fa-credit-card text-xs" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-slate-800 text-[11px] font-black uppercase tracking-[0.15em]">Desglose de Pagos</h3>
+                    </div>
+                    <button @click="addPaymentRow" :disabled="remainingAmount <= 0.1" 
+                            class="bg-ryr text-white text-[9px] font-black px-6 py-2.5 rounded-xl shadow-ryr hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-plus text-[9px]" aria-hidden="true"></i> Agregar Medio
+                    </button>
+                </div>
+
+                <div class="divide-y divide-slate-50">
+                    <div v-for="(pay, index) in payments" :key="index" 
+                         class="p-6 hover:bg-slate-50/50 transition-all relative">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <!-- Plan Selector Personalizado -->
+                            <div class="md:col-span-6 relative">
+                                <span class="label-bento px-1">Medio de Pago</span>
+                                <div class="relative">
+                                    <button @click="pay.isOpen = !pay.isOpen" 
+                                            class="w-full text-left bg-white border border-slate-200 rounded-2xl p-3 text-sm font-semibold flex justify-between items-center hover:border-ryr transition-all"
+                                            :class="{'border-ryr ring-4 ring-ryr/5': pay.isOpen}">
+                                        <span v-if="pay.planIndex === -1" class="text-slate-400">Seleccionar Tarjeta y Plan…</span>
+                                        <span v-else class="text-slate-700">{{ plans[pay.planIndex].name }}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs transition-transform" :class="{'rotate-180': pay.isOpen}" aria-hidden="true"></i>
+                                    </button>
+
+                                    <!-- Dropdown Menu (Opens Upward) -->
+                                    <div v-if="pay.isOpen" class="absolute z-50 bottom-full mb-2 w-full bg-white border border-slate-100 rounded-[1.5rem] shadow-2xl max-h-80 overflow-y-auto py-2">
+                                        <!-- UNICOBROS -->
+                                        <div class="px-4 py-2 text-[10px] font-black text-purple-600 bg-purple-50 flex items-center gap-2 mb-1">
+                                            <i class="fa-solid fa-bolt-lightning" aria-hidden="true"></i> UNICOBROS
+                                        </div>
+                                        <div v-for="p in getPlansByTeam('Unicobros')" :key="p.originalIndex" 
+                                             @click="selectPlan(index, p.originalIndex)"
+                                             class="px-6 py-2.5 text-sm font-medium hover:bg-slate-50 cursor-pointer flex justify-between items-center border-l-4 border-l-transparent hover:border-l-purple-500">
+                                            <span class="text-slate-700">{{ p.name }}</span>
+                                            <span class="text-xs font-bold text-slate-400">+{{ ((p.coefficient - 1) * 100).toFixed(1) }}%</span>
+                                        </div>
+
+                                        <!-- MP POINT -->
+                                        <div class="px-4 py-2 text-[10px] font-black text-yellow-600 bg-yellow-50 flex items-center gap-2 mt-2 mb-1">
+                                            <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> MP POINT (ML)
+                                        </div>
+                                        <div v-for="p in getPlansByTeam('MP Point')" :key="p.originalIndex" 
+                                             @click="selectPlan(index, p.originalIndex)"
+                                             class="px-6 py-2.5 text-sm font-medium hover:bg-slate-50 cursor-pointer flex justify-between items-center border-l-4 border-l-transparent hover:border-l-yellow-500">
+                                            <span class="text-slate-700">{{ p.name }}</span>
+                                            <span class="text-xs font-bold text-slate-400">+{{ ((p.coefficient - 1) * 100).toFixed(1) }}%</span>
+                                        </div>
+
+                                        <!-- FISERV -->
+                                        <div class="px-4 py-2 text-[10px] font-black text-orange-600 bg-orange-50 flex items-center gap-2 mt-2 mb-1">
+                                            <i class="fa-solid fa-credit-card" aria-hidden="true"></i> FISERV
+                                        </div>
+                                        <div v-for="p in getPlansByTeam('Fiserv')" :key="p.originalIndex" 
+                                             @click="selectPlan(index, p.originalIndex)"
+                                             class="px-6 py-2.5 text-sm font-medium hover:bg-slate-50 cursor-pointer flex justify-between items-center border-l-4 border-l-transparent hover:border-l-orange-500">
+                                            <span class="text-slate-700">{{ p.name }}</span>
+                                            <span class="text-xs font-bold text-slate-400">+{{ ((p.coefficient - 1) * 100).toFixed(1) }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="md:col-span-3">
+                                <div class="flex justify-between items-end mb-2 px-1">
+                                    <span class="label-bento !mb-0">{{ pay.isLimitMode ? 'Cobrar' : 'Cubrir' }}</span>
+                                    <button @click="toggleLimitMode(index)" 
+                                            class="text-[8px] font-black px-2 py-0.5 rounded-md transition-all uppercase tracking-tighter"
+                                            :class="pay.isLimitMode ? 'bg-ryr text-white' : 'bg-slate-100 text-slate-400'">
+                                        {{ pay.isLimitMode ? 'LÍMITE' : 'NORMAL' }}
+                                    </button>
+                                </div>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold">$</span>
+                                    <input type="number" v-model.number="pay.amount" @input="validateInput(index)" autocomplete="off"
+                                           class="input-bento !py-2.5 !px-8 border-slate-100 border font-tabular" placeholder="0,00…">
+                                </div>
+                            </div>
+
+                            <!-- Output Info -->
+                            <div class="md:col-span-3 flex items-center justify-between md:justify-end gap-4">
+                                <div v-if="pay.planIndex > -1" class="text-right">
+                                    <span class="label-bento !mb-1">Pasar POS</span>
+                                    <p class="text-2xl font-black text-slate-900 leading-none tracking-tighter font-tabular">
+                                        <span class="text-ryr text-lg mr-0.5">$</span>{{ formatMoney(calculateRow(pay).charge) }}
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <button @click="removePayment(index)" class="text-slate-200 hover:text-ryr transition-colors p-2">
+                                        <i class="fa-solid fa-trash-can text-lg" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="payments.length === 0" class="p-24 text-center">
+                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-receipt text-slate-200 text-3xl" aria-hidden="true"></i>
+                    </div>
+                    <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">No hay movimientos registrados</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div class="lg:col-span-4">
+            <div class="sticky top-12 space-y-10">
+                
+                <!-- Summary Card -->
+                <div class="bento-card border-t-8 border-t-ryr">
+                    <h3 class="text-slate-900 text-xl font-black mb-8 tracking-tight">Liquidación Total</h3>
+
+                    <div class="space-y-6 mb-10">
+                        <div class="flex justify-between items-center">
+                            <span class="label-bento !mb-0">Precio Lista</span>
+                            <span class="text-slate-700 font-bold font-tabular">${{ formatMoney(totalAmount) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="label-bento !mb-0">Cubierto</span>
+                            <span class="text-green-600 font-bold font-tabular">${{ formatMoney(totalCovered) }}</span>
+                        </div>
+                        <div class="h-px bg-slate-50"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="label-bento !mb-0">Restante</span>
+                            <span class="text-2xl font-black font-tabular" :class="remainingAmount > 1 ? 'text-orange-500' : 'text-green-600'">
+                                ${{ formatMoney(remainingAmount) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 rounded-[2rem] p-8 text-center shadow-2xl relative group overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-ryr opacity-50"></div>
+                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] block mb-3">Total a Cobrar Cliente</span>
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="text-2xl font-bold text-slate-600">$</span>
+                            <span class="text-5xl font-black text-white tracking-tighter font-tabular">
+                                {{ formatMoney(totalCharge) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div v-if="totalCharge > 0 && totalAmount > 0" class="mt-8">
+                        <button @click="copyCoefficient" 
+                                class="w-full bg-slate-50 hover:bg-slate-100 p-5 rounded-[1.5rem] flex justify-between items-center transition-all group relative overflow-hidden">
+                            <div class="text-left">
+                                <span class="label-bento !mb-1">Coeficiente del Sistema</span>
+                                <span class="text-2xl font-black text-slate-800 font-mono tracking-tighter group-hover:text-ryr transition-colors">{{ finalCoefficient }}</span>
+                            </div>
+                            <div class="bg-white w-12 h-12 rounded-2xl shadow-sm flex items-center justify-center text-slate-400 group-hover:text-ryr transition-all">
+                                <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                            </div>
+                            <div v-if="showCopied" class="absolute inset-0 bg-green-600 text-white font-black flex items-center justify-center copied-anim">
+                                <i class="fa-solid fa-check mr-2" aria-hidden="true"></i> COPIADO
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer Action -->
+                <button v-if="remainingAmount > 1" @click="addRemainingPayment" 
+                        class="w-full py-6 bg-white border-4 border-dashed border-slate-100 text-slate-300 font-black rounded-[2.5rem] hover:border-ryr/30 hover:text-ryr/50 transition-all flex flex-col justify-center items-center gap-2 group">
+                    <i class="fa-solid fa-plus-circle text-2xl group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+                    <span class="text-[10px] uppercase tracking-[0.2em]">Financiar Restante</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue
+
+    createApp({
+        data() {
+            return {
+                totalAmount: null,
+                plans: [
+                    { team: 'Unicobros', name: 'Mi Pyme - 3 Cuotas', coefficient: 1.1355 },
+                    { team: 'Unicobros', name: 'Mi Pyme - 6 Cuotas', coefficient: 1.2461 },
+                    { team: 'Unicobros', name: 'Visa/Master - 9 Cuotas', coefficient: 1.4785 },
+                    { team: 'Unicobros', name: 'Visa/Master - 12 Cuotas', coefficient: 1.6416 },
+                    { team: 'Unicobros', name: 'Tuya - 3 Cuotas', coefficient: 1.0000 },
+                    { team: 'Unicobros', name: 'Tuya - 5 Cuotas', coefficient: 1.1124 },
+                    { team: 'Unicobros', name: 'Tuya - 10 Cuotas', coefficient: 1.2122 },
+                    { team: 'Unicobros', name: 'Naranja - 1 Pago', coefficient: 1.0000 },
+                    { team: 'Unicobros', name: 'Naranja - Plan Z', coefficient: 1.1755 },
+                    { team: 'MP Point', name: 'Point - 2 Cuotas', coefficient: 1.1346 },
+                    { team: 'MP Point', name: 'Point - 3 Cuotas', coefficient: 1.1666 },
+                    { team: 'MP Point', name: 'Point - 6 Cuotas', coefficient: 1.2462 },
+                    { team: 'MP Point', name: 'Point - 9 Cuotas', coefficient: 1.3475 },
+                    { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.4593 },
+                    { team: 'MP Point', name: 'Point - 18 Cuotas', coefficient: 1.6292 },
+                    { team: 'Fiserv', name: 'Visa/Master - 2 Cuotas', coefficient: 1.13 },
+                    { team: 'Fiserv', name: 'Visa/Master - 3 Cuotas', coefficient: 1.16 },
+                    { team: 'Fiserv', name: 'Visa/Master - 6 Cuotas', coefficient: 1.28 },
+                    { team: 'Fiserv', name: 'Naranja - Plan Z', coefficient: 1.12 },
+                    { team: 'Fiserv', name: 'Naranja - 5 Cuotas', coefficient: 1.19 },
+                    { team: 'Fiserv', name: 'Naranja - 6 Cuotas', coefficient: 1.30 }
+                ],
+                payments: [],
+                showCopied: false
+            }
+        },
+        mounted() {
+            const loader = document.getElementById('loading-msg');
+            if(loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+            }
+        },
+        computed: {
+            totalCovered() {
+                return this.payments.reduce((acc, pay) => acc + this.calculateRow(pay).principal, 0);
+            },
+            totalCharge() {
+                return this.payments.reduce((acc, pay) => acc + this.calculateRow(pay).charge, 0);
+            },
+            remainingAmount() {
+                let total = this.totalAmount || 0;
+                let covered = this.totalCovered;
+                return (total - covered) > 0.01 ? (total - covered) : 0;
+            },
+            finalCoefficient() {
+                if (!this.totalAmount || this.totalAmount === 0) return '0.0000';
+                return (this.totalCharge / this.totalAmount).toFixed(4);
+            }
+        },
+        methods: {
+            getPlansByTeam(teamName) {
+                return this.plans.map((p, i) => ({...p, originalIndex: i}))
+                                 .filter(p => p.team.includes(teamName));
+            },
+            formatOptionLabel(p) {
+                const percentValue = ((p.coefficient - 1) * 100).toFixed(1) + '%';
+                return `${p.name} (+${percentValue})`;
+            },
+            getTeamTextClass(idx) {
+                return 'text-slate-900';
+            },
+            addPaymentRow() {
+                if (this.remainingAmount > 0.1) {
+                    this.payments.push({ planIndex: -1, amount: null, isLimitMode: false, isOpen: false });
+                }
+            },
+            addRemainingPayment() {
+                if (this.remainingAmount > 0.1) {
+                    this.payments.push({
+                        planIndex: -1,
+                        amount: parseFloat(this.remainingAmount.toFixed(2)),
+                        isLimitMode: false,
+                        isOpen: false
+                    });
+                }
+            },
+            selectPlan(rowIdx, planIdx) {
+                this.payments[rowIdx].planIndex = planIdx;
+                this.payments[rowIdx].isOpen = false;
+                this.validateInput(rowIdx);
+            },
+            removePayment(index) { this.payments.splice(index, 1); },
+            toggleLimitMode(index) {
+                this.payments[index].isLimitMode = !this.payments[index].isLimitMode;
+                this.validateInput(index);
+            },
+            validateInput(index) {
+                const pay = this.payments[index];
+                if (!pay.amount) return;
+                let otherPrincipal = 0;
+                this.payments.forEach((p, i) => { if (i !== index) otherPrincipal += this.calculateRow(p).principal; });
+                const maxAvailable = (this.totalAmount || 0) - otherPrincipal;
+                if (maxAvailable < 0) { pay.amount = 0; return; }
+                let coeff = pay.planIndex > -1 ? this.plans[pay.planIndex].coefficient : 1;
+                if (pay.isLimitMode) {
+                    if ((pay.amount / coeff) > maxAvailable + 0.1) {
+                        pay.amount = parseFloat((maxAvailable * coeff).toFixed(2));
+                    }
+                } else {
+                    if (pay.amount > maxAvailable + 0.1) {
+                        pay.amount = parseFloat(maxAvailable.toFixed(2));
+                    }
+                }
+            },
+            calculateRow(pay) {
+                if (pay.planIndex === -1 || !pay.amount) return { charge: 0, principal: 0 };
+                const coeff = this.plans[pay.planIndex].coefficient;
+                return pay.isLimitMode ? 
+                    { charge: pay.amount, principal: pay.amount / coeff } : 
+                    { principal: pay.amount, charge: pay.amount * coeff };
+            },
+            formatMoney(v) {
+                if(!v && v !== 0) return '0,00';
+                return v.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            },
+            copyCoefficient() {
+                navigator.clipboard.writeText(this.finalCoefficient);
+                this.showCopied = true;
+                setTimeout(() => this.showCopied = false, 2000);
+            }
+        }
+    }).mount('#app')
+</script>
+</body>
+</html>

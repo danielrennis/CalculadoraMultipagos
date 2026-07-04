@@ -32,8 +32,16 @@
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.09),
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.14),
+                    0 2px 8px 0 rgba(0,0,0,0.08),
                     inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    /* Best plan highlight */
+    .best-plan-highlight {
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5),
+                    0 8px 24px rgba(16, 185, 129, 0.25);
+        background: rgba(236, 253, 245, 0.6) !important;
     }
 
     .glass-button-primary {
@@ -296,20 +304,20 @@
         <div class="lg:col-span-8 space-y-8">
 
             <!-- INPUT MONTO -->
-            <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10 pointer-events-none">
-                    <i class="fa-solid fa-money-bill-transfer text-9xl"></i>
+            <div class="glass-panel p-4 rounded-3xl relative overflow-hidden group" style="box-shadow: 0 8px 32px 0 rgba(31,38,135,0.16), 0 2px 12px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.7);">
+                <div class="absolute top-0 right-0 p-6 opacity-5 transition-opacity group-hover:opacity-10 pointer-events-none">
+                    <i class="fa-solid fa-money-bill-transfer text-8xl"></i>
                 </div>
-                <label class="block text-xs font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">Precio de Contado</label>
+                <label class="block text-xs font-black text-slate-400 mb-1 uppercase tracking-[0.2em]">Precio de Contado</label>
                 <div class="relative">
-                    <span class="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300 text-5xl font-light">$</span>
-                    <input class="w-full pl-12 pr-4 py-4 text-6xl font-black text-slate-900 bg-transparent border-none focus:ring-0 outline-none placeholder-slate-200 font-headline"
-                           placeholder="0.00" type="number" v-model.number="totalAmount">
+                    <span class="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300 text-4xl font-light">$</span>
+                    <input class="w-full pl-10 pr-4 py-2 text-5xl font-black text-slate-900 bg-transparent border-none focus:ring-0 outline-none placeholder-slate-200 font-headline"
+                           placeholder="0" type="number" v-model.number="totalAmount">
                 </div>
             </div>
 
             <!-- LISTADO DE PAGOS -->
-            <div class="glass-panel rounded-3xl overflow-visible min-h-[450px]">
+            <div class="glass-panel rounded-3xl overflow-visible min-h-[450px]" style="box-shadow: 0 8px 32px 0 rgba(31,38,135,0.16), 0 2px 12px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.7);">
                 <div class="p-6 bg-white/30 border-b border-white/20 flex justify-between items-center rounded-t-3xl">
                     <h3 class="font-black text-slate-900 flex items-center gap-3 uppercase text-xs tracking-widest font-headline">
                         <span class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white text-[10px]">
@@ -326,7 +334,8 @@
                 <div class="divide-y divide-white/20">
                     <div v-for="(pay, index) in payments" :key="index"
                          :class="getTeamBorderClass(pay.planIndex)"
-                         class="p-6 hover:bg-white/30 transition relative border-l-[12px]">
+                         class="p-6 hover:bg-white/30 transition relative border-l-[12px]"
+                         style="box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
 
                         <!-- ===== CUSTOM PLAN DROPDOWN ===== -->
                         <div class="relative mb-6" @click.stop>
@@ -382,8 +391,11 @@
                                 </div>
                                 <div v-for="p in getPlansByTeam('Unicobros')" :key="'dp-u-'+p.originalIndex"
                                      @click="selectPlan(index, p.originalIndex)"
-                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-purple-50/60 transition border-l-4 border-l-purple-300">
+                                     :class="isBestPlan(p.originalIndex) ? 'best-plan-highlight' : ''"
+                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-purple-50/60 transition border-l-4 border-l-purple-300 relative">
+                                    <span v-if="isBestPlan(p.originalIndex)" class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-r"></span>
                                     <span class="text-sm font-semibold text-slate-700 flex-1">{{ p.name }}</span>
+                                    <span v-if="isBestPlan(p.originalIndex)" class="text-[9px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full mr-1">✓ Mejor</span>
                                     <span class="text-xs font-mono font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-lg shrink-0">
                                         +{{ ((p.coefficient - 1) * 100).toFixed(2) }}%
                                     </span>
@@ -396,8 +408,11 @@
                                 </div>
                                 <div v-for="p in getPlansByTeam('MP Point')" :key="'dp-m-'+p.originalIndex"
                                      @click="selectPlan(index, p.originalIndex)"
-                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-amber-50/60 transition border-l-4 border-l-amber-300">
+                                     :class="isBestPlan(p.originalIndex) ? 'best-plan-highlight' : ''"
+                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-amber-50/60 transition border-l-4 border-l-amber-300 relative">
+                                    <span v-if="isBestPlan(p.originalIndex)" class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-r"></span>
                                     <span class="text-sm font-semibold text-slate-700 flex-1">{{ p.name }}</span>
+                                    <span v-if="isBestPlan(p.originalIndex)" class="text-[9px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full mr-1">✓ Mejor</span>
                                     <span class="text-xs font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg shrink-0">
                                         +{{ ((p.coefficient - 1) * 100).toFixed(2) }}%
                                     </span>
@@ -410,8 +425,11 @@
                                 </div>
                                 <div v-for="p in getPlansByTeam('Fiserv')" :key="'dp-f-'+p.originalIndex"
                                      @click="selectPlan(index, p.originalIndex)"
-                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-orange-50/60 transition border-l-4 border-l-orange-300">
+                                     :class="isBestPlan(p.originalIndex) ? 'best-plan-highlight' : ''"
+                                     class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-orange-50/60 transition border-l-4 border-l-orange-300 relative">
+                                    <span v-if="isBestPlan(p.originalIndex)" class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-r"></span>
                                     <span class="text-sm font-semibold text-slate-700 flex-1">{{ p.name }}</span>
+                                    <span v-if="isBestPlan(p.originalIndex)" class="text-[9px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full mr-1">✓ Mejor</span>
                                     <span class="text-xs font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-lg shrink-0">
                                         +{{ ((p.coefficient - 1) * 100).toFixed(2) }}%
                                     </span>
@@ -448,15 +466,15 @@
                                 <div v-if="pay.planIndex !== -1">
                                     <p class="text-[11px] text-slate-400 mb-1 uppercase font-black tracking-widest">Cobro Final:</p>
                                     <p :class="getTeamTextClass(pay.planIndex)" class="text-3xl font-black leading-none font-headline">
-                                        <span class="text-sm align-top mr-1 opacity-50">$</span>{{ formatMoney(calculateRow(pay).charge) }}
+                                        <span class="text-sm align-top mr-1 opacity-50">$</span>{{ formatMoneyNoDecimals(calculateRow(pay).charge) }}
                                     </p>
                                     <div v-if="getInstallmentsCount(pay.planIndex) > 1" class="mt-2 text-sm font-black text-slate-700 uppercase tracking-wide">
-                                        {{ getInstallmentsCount(pay.planIndex) }} cuotas de ${{ formatMoney(getInstallmentAmount(pay)) }}
+                                        {{ getInstallmentsCount(pay.planIndex) }} cuotas de ${{ formatMoneyNoDecimals(getInstallmentAmount(pay)) }}
                                     </div>
                                     <div :class="getTeamBadgeClass(pay.planIndex)"
                                          class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black border tracking-wider">
                                         <i class="fa-solid fa-check-circle"></i>
-                                        CUBRE: ${{ formatMoney(calculateRow(pay).principal) }}
+                                        CUBRE: ${{ formatMoneyNoDecimals(calculateRow(pay).principal) }}
                                     </div>
                                 </div>
                             </div>
@@ -479,7 +497,7 @@
 
         <!-- ===== SIDEBAR ===== -->
         <div class="lg:col-span-4 lg:sticky lg:top-10">
-            <div class="glass-panel p-8 rounded-[2rem] shadow-xl border-t-8 border-t-ryr">
+            <div class="glass-panel p-8 rounded-[2rem] border-t-8 border-t-ryr" style="box-shadow: 0 12px 40px 0 rgba(31,38,135,0.18), 0 2px 12px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.7);">
                 <h3 class="text-xl font-black text-slate-900 mb-8 pb-4 border-b border-white/30 uppercase tracking-tighter font-headline">Estado de Cuenta</h3>
 
                 <div class="mb-8">
@@ -499,20 +517,20 @@
                 <div class="space-y-4 mb-10">
                     <div class="flex justify-between items-center px-4 py-3 glass-panel rounded-xl border-none">
                         <span class="text-slate-500 font-bold uppercase text-[9px] tracking-widest">Importe Original</span>
-                        <span class="font-black text-slate-800 font-mono text-lg">${{ formatMoney(totalAmount) }}</span>
+                        <span class="font-black text-slate-800 font-mono text-lg">${{ formatMoneyNoDecimals(totalAmount) }}</span>
                     </div>
                     <div :class="{'ring-2 ring-emerald-500/20': remainingAmount <= 0.1}"
                          class="flex justify-between items-center px-4 py-3 glass-panel rounded-xl border-none">
                         <span class="text-slate-500 font-bold uppercase text-[9px] tracking-widest">Monto Cubierto</span>
                         <span :class="remainingAmount <= 0.1 ? 'text-emerald-600' : 'text-slate-800'"
-                              class="font-black font-mono text-lg">${{ formatMoney(totalCovered) }}</span>
+                              class="font-black font-mono text-lg">${{ formatMoneyNoDecimals(totalCovered) }}</span>
                     </div>
 
                     <div class="bg-ryr p-8 rounded-3xl text-center shadow-[0_15px_30px_rgba(220,38,38,0.3)] my-8 relative overflow-hidden group">
                         <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <span class="text-red-100 text-[10px] font-black uppercase tracking-[0.3em] block mb-2">Total a Percibir</span>
                         <span class="text-5xl font-black text-white block tracking-tighter font-headline">
-                            <span class="text-xl align-top mr-1 opacity-60">$</span>{{ formatMoney(totalCharge) }}
+                            <span class="text-xl align-top mr-1 opacity-60">$</span>{{ formatMoneyNoDecimals(totalCharge) }}
                         </span>
                     </div>
                 </div>
@@ -819,6 +837,33 @@
             formatMoney(v) {
                 if (!v && v !== 0) return '0,00';
                 return v.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            },
+            formatMoneyNoDecimals(v) {
+                if (!v && v !== 0) return '0';
+                return Math.round(v).toLocaleString('es-AR');
+            },
+            /* Detecta si un plan es el mejor entre los 3 equipos para su tipo de cuotas */
+            isBestPlan(planIndex) {
+                if (planIndex < 0) return false;
+                const plan = this.plans[planIndex];
+                // Extraer la cantidad de cuotas del nombre
+                const match = plan.name.match(/(\d+)\s*(Cuota|Pago)/i);
+                const isPlanZ = plan.name.includes('Plan Z');
+                if (!match && !isPlanZ) return false;
+                const cuotas = isPlanZ ? 'PlanZ' : match[1];
+                // Buscar todos los planes con el mismo número de cuotas en los 3 equipos
+                const candidates = this.plans
+                    .map((p, i) => ({ p, i }))
+                    .filter(({ p }) => {
+                        const m = p.name.match(/(\d+)\s*(Cuota|Pago)/i);
+                        const isZ = p.name.includes('Plan Z');
+                        const c = isZ ? 'PlanZ' : (m ? m[1] : null);
+                        return c === cuotas;
+                    });
+                if (candidates.length < 2) return false;
+                // El mejor es el de menor coeficiente
+                const minCoeff = Math.min(...candidates.map(({ p }) => p.coefficient));
+                return plan.coefficient === minCoeff;
             },
             copyCoefficient() {
                 navigator.clipboard.writeText(this.finalCoefficient);
