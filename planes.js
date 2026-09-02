@@ -22,11 +22,11 @@ const DEFAULT_PLANS = [
     { team: 'Unicobros', name: 'Naranja - Plan Z',        coefficient: 1.1755, color: 'purple' },
 
     /* --- MP POINT --- */
-    { team: 'MP Point', name: 'Point - 2 Cuotas',  coefficient: 1.1198, color: 'yellow' },
-    { team: 'MP Point', name: 'Point - 3 Cuotas',  coefficient: 1.1468, color: 'yellow' },
-    { team: 'MP Point', name: 'Point - 6 Cuotas',  coefficient: 1.2136, color: 'yellow' },
-    { team: 'MP Point', name: 'Point - 9 Cuotas',  coefficient: 1.2987, color: 'yellow' },
-    { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.3928, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 2 Cuotas',  coefficient: 1.1296, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 3 Cuotas',  coefficient: 1.1630, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 6 Cuotas',  coefficient: 1.2472, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 9 Cuotas',  coefficient: 1.3578, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.4847, color: 'yellow' },
     { team: 'MP Point', name: 'Point - 18 Cuotas', coefficient: 1.5361, color: 'yellow' },
 
     /* --- FISERV --- */
@@ -42,5 +42,5 @@ const DEFAULT_PLANS = [
     { team: 'Fiserv', name: 'Naranja - 6 Cuotas',     coefficient: 1.1481, color: 'orange' }
 ];
 
-const PLANES_VERSION    = 'ryr_plans_v4';
-const PLANES_UPDATED    = 'Julio 2026';
+const PLANES_VERSION    = 'ryr_plans_v5';
+const PLANES_UPDATED    = 'Septiembre 2026';
