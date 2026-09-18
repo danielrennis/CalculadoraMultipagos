@@ -39,8 +39,9 @@ const DEFAULT_PLANS = [
     { team: 'Fiserv', name: 'Visa/Master - 12 Cuotas', coefficient: 1.3945, color: 'orange' },
     { team: 'Fiserv', name: 'Naranja - Plan Z',        coefficient: 1.0805, color: 'orange' },
     { team: 'Fiserv', name: 'Naranja - 5 Cuotas',     coefficient: 1.1377, color: 'orange' },
-    { team: 'Fiserv', name: 'Naranja - 6 Cuotas',     coefficient: 1.1481, color: 'orange' }
+    { team: 'Fiserv', name: 'Naranja - 6 Cuotas',     coefficient: 1.1481, color: 'orange' },
+    { team: 'Fiserv', name: 'Naranja - 9 Cuotas',     coefficient: 1.1737, color: 'orange' }
 ];
 
-const PLANES_VERSION    = 'ryr_plans_v5';
-const PLANES_UPDATED    = 'Septiembre 2026';
+const PLANES_VERSION    = 'ryr_plans_v6';
+const PLANES_UPDATED    = '19 al 30 de Septiembre 2026';
