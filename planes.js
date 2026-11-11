@@ -11,10 +11,10 @@
 
 const DEFAULT_PLANS = [
     /* --- UNICOBROS --- */
-    { team: 'Unicobros', name: 'Mi Pyme - 3 Cuotas',      coefficient: 1.1355, color: 'purple' },
-    { team: 'Unicobros', name: 'Mi Pyme - 6 Cuotas',      coefficient: 1.2461, color: 'purple' },
-    { team: 'Unicobros', name: 'Visa/Master - 9 Cuotas',  coefficient: 1.4785, color: 'purple' },
-    { team: 'Unicobros', name: 'Visa/Master - 12 Cuotas', coefficient: 1.6416, color: 'purple' },
+    { team: 'Unicobros', name: 'Visa/Master - 3 Cuotas',  coefficient: 1.1059, color: 'purple' },
+    { team: 'Unicobros', name: 'Visa/Master - 6 Cuotas',  coefficient: 1.1827, color: 'purple' },
+    { team: 'Unicobros', name: 'Visa/Master - 9 Cuotas',  coefficient: 1.3152, color: 'purple' },
+    { team: 'Unicobros', name: 'Visa/Master - 12 Cuotas', coefficient: 1.4131, color: 'purple' },
     { team: 'Unicobros', name: 'Tuya - 3 Cuotas',         coefficient: 1.0000, color: 'purple' },
     { team: 'Unicobros', name: 'Tuya - 5 Cuotas',         coefficient: 1.1124, color: 'purple' },
     { team: 'Unicobros', name: 'Tuya - 10 Cuotas',        coefficient: 1.2122, color: 'purple' },
@@ -23,10 +23,10 @@ const DEFAULT_PLANS = [
 
     /* --- MP POINT --- */
     { team: 'MP Point', name: 'Point - 2 Cuotas',  coefficient: 1.1296, color: 'yellow' },
-    { team: 'MP Point', name: 'Point - 3 Cuotas',  coefficient: 1.1630, color: 'yellow' },
-    { team: 'MP Point', name: 'Point - 6 Cuotas',  coefficient: 1.2472, color: 'yellow' },
-    { team: 'MP Point', name: 'Point - 9 Cuotas',  coefficient: 1.3578, color: 'yellow' },
-    { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.4847, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 3 Cuotas',  coefficient: 1.1508, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 6 Cuotas',  coefficient: 1.2519, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 9 Cuotas',  coefficient: 1.3545, color: 'yellow' },
+    { team: 'MP Point', name: 'Point - 12 Cuotas', coefficient: 1.4547, color: 'yellow' },
     { team: 'MP Point', name: 'Point - 18 Cuotas', coefficient: 1.5361, color: 'yellow' },
 
     /* --- FISERV --- */
@@ -43,5 +43,5 @@ const DEFAULT_PLANS = [
     { team: 'Fiserv', name: 'Naranja - 9 Cuotas',     coefficient: 1.1737, color: 'orange' }
 ];
 
-const PLANES_VERSION    = 'ryr_plans_v6';
-const PLANES_UPDATED    = '19 al 30 de Septiembre 2026';
+const PLANES_VERSION    = 'ryr_plans_v8';
+const PLANES_UPDATED    = 'Noviembre 2026';
