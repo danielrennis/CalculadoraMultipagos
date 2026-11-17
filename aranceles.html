@@ -56,10 +56,27 @@
     td:last-child { font-family: monospace; font-weight: 900; font-size: 15px; }
     td.costo { color: #64748b; font-size: 13px; }
     .footer { margin-top: 50px; text-align: center; font-size: 11px; color: #bbb; letter-spacing: 0.1em; text-transform: uppercase; }
+    .print-btn {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 13px;
+        margin-top: 10px;
+        transition: background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .print-btn:hover { background: #b91c1c; }
     @media print {
         body { background: white; padding: 0; }
-        @page { margin: 2cm; }
-        table { box-shadow: none; border: 1px solid #ddd; }
+        @page { margin: 1.5cm; }
+        table { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+        .no-print { display: none !important; }
     }
 </style>
 </head>
@@ -69,6 +86,7 @@
     <div>
         <h1>Listado de Coeficientes Activos</h1>
         <p class="subtitle">Sistema Multipagos &mdash; RyR Computación</p>
+        <button onclick="window.print()" class="no-print print-btn">🖨️ Imprimir / Guardar PDF</button>
     </div>
     <div>
         <span class="badge" id="version-badge">Cargando...</span>
