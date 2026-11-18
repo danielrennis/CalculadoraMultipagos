@@ -1,5 +1,5 @@
 {
-  "version": "ryr_plans_v10",
+  "version": "ryr_plans_v11",
   "updated": "Noviembre 2026",
   "plans": [
     {
@@ -156,6 +156,12 @@
       "team": "Fiserv",
       "name": "Naranja - 9 Cuotas",
       "coefficient": 1.2702,
+      "color": "orange"
+    },
+    {
+      "team": "Fiserv",
+      "name": "Naranja - 15 Cuotas",
+      "coefficient": 1.332,
       "color": "orange"
     }
   ]
